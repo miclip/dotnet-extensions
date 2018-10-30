@@ -1,7 +1,19 @@
 language: go
-go:
-- 1.11.x
-- tip
+sudo: false
+matrix:
+  include:
+    # "1.x" always refers to the latest Go version, inc. the patch release.
+    # e.g. "1.x" is 1.11 until 1.11.1 is available.
+    - go: 1.11.x
+      env: LATEST=true
+    - go: 1.7.x
+    - go: 1.8.x
+    - go: 1.9.x
+    - go: 1.10.x
+    - go: tip
+  allow_failures:
+    - go: tip
+
 install:
 - export PATH=$PATH:$HOME/gopath/bin
 - go get -u github.com/golang/dep/cmd/dep
@@ -15,6 +27,7 @@ after_success:
 - bash <(curl -s https://codecov.io/bash)
 deploy:
   provider: releases
+  skip_cleanup: true
   api_key:
     secure: ApRRLOtOtBzUxQhN70M76/5GXxBC1hH1VBs69IBj1b6g5Mv3q2SGiroDM9sYB2zkLheL7x6b/okATBhmwd80PIf9zUHVz6aP2wbNDISy7dWSnqof62EoMpcEr6ahZnj60ExY78d+qIhl+kTLNjqsH0WTq4j38DINTRvKIbEecDARqyrkvWWVKfT0Fg6q6jSNyM1mElxbbqaUgfY5ajhnB3UUNlgz5AOT2yZh92DJjgqXhBRAHZgsw45dAlaBFJguZhG6IuVH/aileqf25/5pqqTeaPqvIXXZf5i2mFiw/3VXI02gbq1dG+wGk2xz1Y8KbqyM0aljVd1VV488z8ntvYxDGQ7aHjaQoBfd/qPiV3uUIGHYCdSJnmljQ2VrNBw4KcaVax/cXNjr/36gapsH5dFK5JvhHIHi4yFz40ar7aGrzeiJcP5EGwrUDb5/TTmXiAwOUQ3RD4+5uEoXzliki1izOfZxTRUDn/4Z1iN/Zp91z8D0LtBxSe2mG68c7BKvrFGzQq1gPOzVyP7R0JeNXBVlGszSRJoyy0uW13hBkXBw9nq3R0V2vYv49UdUuEhR0FAeT7SgoHF42+2zlvugQbRcjXRGZMCx4niMnHB8Ittxe5p8E2Y0kPvEFCtQUPhgLGtOMhE4dvWlXO0SeHViGgGWC3JEKKGwGAGwHBnezxA=
   file: 
@@ -26,3 +39,6 @@ deploy:
   - dotnet-pack-ext.linux.amd64
   on:
     repo: miclip/dotnet-extensions
+    # Only build binaries for tagged commits
+    tags: true
+    condition: $LATEST = true
