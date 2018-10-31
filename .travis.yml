@@ -18,8 +18,8 @@ install:
 script:
 - ". ./test.sh"
   # Only build binaries from the latest Go release.
-- if [ "${LATEST}" = "true" ]; then gox -os="linux darwin windows" -arch="amd64" -output="dotnet-nuget-ext.." -ldflags "-X main.Rev=`git rev-parse --short HEAD`" -verbose ./dotnet-nuget-ext; fi
-- if [ "${LATEST}" = "true" ]; then gox -os="linux darwin windows" -arch="amd64" -output="dotnet-pack-ext.." -ldflags "-X main.Rev=`git rev-parse --short HEAD`" -verbose ./dotnet-pack-ext; fi
+- if [ "${LATEST}" = "true" ]; then gox -os="linux darwin windows" -arch="amd64" -ldflags "-X main.Rev=`git rev-parse --short HEAD`" -verbose ./dotnet-nuget-ext ./dotnet-pack-ext; fi
+
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 deploy:
@@ -28,12 +28,12 @@ deploy:
   api_key:
     secure: ApRRLOtOtBzUxQhN70M76/5GXxBC1hH1VBs69IBj1b6g5Mv3q2SGiroDM9sYB2zkLheL7x6b/okATBhmwd80PIf9zUHVz6aP2wbNDISy7dWSnqof62EoMpcEr6ahZnj60ExY78d+qIhl+kTLNjqsH0WTq4j38DINTRvKIbEecDARqyrkvWWVKfT0Fg6q6jSNyM1mElxbbqaUgfY5ajhnB3UUNlgz5AOT2yZh92DJjgqXhBRAHZgsw45dAlaBFJguZhG6IuVH/aileqf25/5pqqTeaPqvIXXZf5i2mFiw/3VXI02gbq1dG+wGk2xz1Y8KbqyM0aljVd1VV488z8ntvYxDGQ7aHjaQoBfd/qPiV3uUIGHYCdSJnmljQ2VrNBw4KcaVax/cXNjr/36gapsH5dFK5JvhHIHi4yFz40ar7aGrzeiJcP5EGwrUDb5/TTmXiAwOUQ3RD4+5uEoXzliki1izOfZxTRUDn/4Z1iN/Zp91z8D0LtBxSe2mG68c7BKvrFGzQq1gPOzVyP7R0JeNXBVlGszSRJoyy0uW13hBkXBw9nq3R0V2vYv49UdUuEhR0FAeT7SgoHF42+2zlvugQbRcjXRGZMCx4niMnHB8Ittxe5p8E2Y0kPvEFCtQUPhgLGtOMhE4dvWlXO0SeHViGgGWC3JEKKGwGAGwHBnezxA=
   file: 
-  - dotnet-nuget-ext.windows.amd64.exe
-  - dotnet-nuget-ext.darwin.amd64
-  - dotnet-nuget-ext.linux.amd64
-  - dotnet-pack-ext.windows.amd64.exe
-  - dotnet-pack-ext.darwin.amd64
-  - dotnet-pack-ext.linux.amd64
+    - dotnet-nuget-ext_windows_amd64.exe
+    - dotnet-nuget-ext_darwin_amd64
+    - dotnet-nuget-ext_linux_amd64
+    - dotnet-pack-ext_windows_amd64.exe
+    - dotnet-pack-ext_darwin_amd64
+    - dotnet-pack-ext_linux_amd64
   on:
     repo: miclip/dotnet-extensions
     # Only build binaries for tagged commits
