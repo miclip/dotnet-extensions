@@ -45,20 +45,23 @@ var versionsCmd = &cobra.Command{
 
 // HandleVersions ...
 func HandleVersions(ui ui.UI, nugetClientv3 nuget.NugetClientv3, args []string) {
-	
-	if Latest {
-		version, err := nugetClientv3.GetPackageVersion(context.Background(), PackageName, Prerelease)
-		if err != nil {
-			ui.ErrorLinef("error retrieving latest version from feed. %v", err)
-			return
-		}
-		if version == nil{
-			ui.ErrorLinef("no version details found.")
-			return
-		}
-		ui.PrintLinef(version.Version)
+	versions, err := nugetClientv3.GetPackageVersions(context.Background(), PackageName, Prerelease)
+	if err != nil {
+		ui.ErrorLinef("error retrieving latest version from feed. %v", err)
+		return
 	}
-	
+	if len(versions) == 0 {
+		ui.ErrorLinef("no version details found.")
+		return
+	}
+	if Latest {
+		ui.PrintLinef(versions[len(versions)-1].Version)
+		return
+	}
+	for _, v := range versions {
+		ui.PrintLinef(v.Version)
+	}
+
 }
 
 func init() {
@@ -66,5 +69,5 @@ func init() {
 	versionsCmd.Flags().StringVarP(&FeedUrl, "source", "s", "", "Specifies the server URL.")
 	versionsCmd.Flags().StringVarP(&PackageName, "name", "n", "", "Package name")
 	versionsCmd.Flags().BoolVarP(&Prerelease, "prerelease", "p", false, "Includes prerelease packages in the list.")
-	versionsCmd.Flags().BoolVarP(&Latest, "latest", "l", true, "Returns only latest version")
+	versionsCmd.Flags().BoolVarP(&Latest, "latest", "l", false, "Returns only latest version")
 }

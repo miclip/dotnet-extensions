@@ -16,7 +16,7 @@ import (
 type NugetClientv3 interface {
 	GetServiceIndex(ctx context.Context) (*ServiceIndex, error)
 	SearchQueryService(ctx context.Context, searchQueryURL string, query string, preRelease bool) (*SearchResults, error)
-	GetPackageVersion(ctx context.Context, name string, preRelease bool) (*PackageVersion, error)
+	GetPackageVersions(ctx context.Context, name string, preRelease bool) ([]Version, error)
 	CreateNuspec(packageID string, version string, author string, description string, owner string) Nuspec
 	DownloadPackage(ctx context.Context, packageID string, version string, targetFolder string) error
 	GetNugetApiEndPoint(ctx context.Context, resourceType string) (string, error)
@@ -164,7 +164,9 @@ func (client *nugetclientv3) GetNugetApiEndPoint(ctx context.Context, resourceTy
 	
 }
 
-func (client *nugetclientv3) GetPackageVersion(ctx context.Context, name string, preRelease bool) (*PackageVersion, error) {
+func (client *nugetclientv3) GetPackageVersions(ctx context.Context, name string, preRelease bool) ([]Version, error) {
+
+	versions := []Version{}
 
 	searchQueryService, err := client.GetNugetApiEndPoint(ctx, "SearchQueryService")
 	if err != nil {
@@ -173,20 +175,16 @@ func (client *nugetclientv3) GetPackageVersion(ctx context.Context, name string,
 
 	searchResults, err := client.SearchQueryService(ctx, searchQueryService, name, preRelease)
 	if err != nil {
-		return nil, err
+		return versions, err
 	}
 
 	if searchResults == nil {
-		return nil, fmt.Errorf("Package not found name: %s prerelease: %t", name, preRelease)
+		return versions, fmt.Errorf("Package not found name: %s prerelease: %t", name, preRelease)
 	}
 
 	for _, result := range searchResults.Data {
 		if result.ID == name {
-			return &PackageVersion{
-				ID:          result.ID,
-				Version:     result.Version,
-				Description: result.Description,
-			}, nil
+			return result.Versions,	nil
 		} 
 	}
 

@@ -182,7 +182,7 @@ var _ = Describe("GetPackageVersion", func() {
 		server.Close()
 	})
 
-	Context("When the client returns a PackageVersion", func() {
+	Context("When the client returns a Version", func() {
 		BeforeEach(func() {
 			returnedServiceIndex = nuget.ServiceIndex{
 				Version: "3.0.0",
@@ -208,24 +208,49 @@ var _ = Describe("GetPackageVersion", func() {
 						ID:          "Some.Package.Name",
 						Version:     "2.0.1",
 						Description: "A test package description",
+						Versions: []nuget.Version{
+							nuget.Version{
+								ID: server.URL() + "/somefeed/api/v3/registration1/dotnetresource.testlibraryone/1.0.1.json",
+								Version: "2.0.0",
+								Downloads: 3,
+							},
+							nuget.Version{
+								ID: server.URL() + "/somefeed/api/v3/registration1/dotnetresource.testlibraryone/1.0.1.json",
+								Version: "2.0.1",
+								Downloads: 3,
+							},
+						},
 					},
 					nuget.SearchResult{
 						ID:          "Some.Other.Package.Name",
 						Version:     "2.0.10",
 						Description: "A test package description",
+						Versions: []nuget.Version{
+							nuget.Version{
+								ID: server.URL() + "/somefeed/api/v3/registration1/dotnetresource.testlibraryone/1.0.1.json",
+								Version: "2.0.9",
+								Downloads: 3,
+							},
+							nuget.Version{
+								ID: server.URL() + "/somefeed/api/v3/registration1/dotnetresource.testlibraryone/1.0.1.json",
+								Version: "2.0.10",
+								Downloads: 3,
+							},
+						},
 					},
 				},
 			}
 			statusCode = 200
 		})
 
-		It("returns PackageVersion for a particular package", func() {
-			r, err := client.GetPackageVersion(context.Background(), "Some.Package.Name", false)
+		It("returns all versions for a particular package", func() {
+			r, err := client.GetPackageVersions(context.Background(), "Some.Package.Name", false)
 			Ω(err).Should(Succeed())
 			Ω(server.ReceivedRequests()).Should(HaveLen(2))
 			Ω(r).ShouldNot(BeNil())
-			Ω(r.ID).To(Equal("Some.Package.Name"))
-			Ω(r.Version).To(Equal("2.0.1"))
+			Ω(r).Should(HaveLen(2))
+			Ω(r[0].Version).To(Equal("2.0.0"))
+			Ω(r[1].Version).To(Equal("2.0.1"))
 		})
 	})
 })

@@ -30,12 +30,14 @@ var _ = Describe("Versions cmd", func() {
 	})
 	Context("versions latest", func() {
 		It("prints the latest prelease version", func() {
-			packageVersion := nuget.PackageVersion{
-				ID:          "A.Package.Name",
-				Version:     "1.0.23",
-				Description: "A descriptive description",
+			versions := []nuget.Version{
+				nuget.Version{
+					ID:        "http://some.com/somefeed/api/v3/registration1/dotnetresource.testlibraryone/1.0.1.json",
+					Version:   "1.0.23",
+					Downloads: 10,
+				},
 			}
-			nugetClientv3.GetPackageVersionReturns(&packageVersion, nil)
+			nugetClientv3.GetPackageVersionsReturns(versions, nil)
 			cmd.PackageName = "A.Package.Name"
 			cmd.Prerelease = true
 			cmd.Latest = true
@@ -44,18 +46,18 @@ var _ = Describe("Versions cmd", func() {
 			Ω(bOut).To(gbytes.Say("1.0.23"))
 		})
 		It("returns an error", func() {
-			
+
 			cmd.PackageName = "Wrong.Package.Name"
 			cmd.Prerelease = true
 			cmd.Latest = true
 			cmd.FeedUrl = "https://somefeed.com/feed.json"
-			nugetClientv3.GetPackageVersionReturns(nil, fmt.Errorf("Package not found name: %s prerelease: %t", cmd.PackageName, cmd.Prerelease))
+			nugetClientv3.GetPackageVersionsReturns([]nuget.Version{}, fmt.Errorf("Package not found name: %s prerelease: %t", cmd.PackageName, cmd.Prerelease))
 			cmd.HandleVersions(ui, nugetClientv3, nil)
 			Ω(bOut).To(gbytes.Say(""))
 			Ω(bErr).To(gbytes.Say("error retrieving latest version from feed. Package not found name: Wrong.Package.Name prerelease: true"))
 		})
 		It("it can't find a matching package", func() {
-			nugetClientv3.GetPackageVersionReturns(nil, nil)
+			nugetClientv3.GetPackageVersionsReturns([]nuget.Version{}, nil)
 			cmd.HandleVersions(ui, nugetClientv3, nil)
 			Ω(bOut).To(gbytes.Say(""))
 			Ω(bErr).To(gbytes.Say("no version details found."))
@@ -76,7 +78,7 @@ var _ = Describe("Versions cmd", func() {
 	// 		cmd.HandleVersions(ui, nugetClientv3, nil)
 	// 		Ω(bOut).To(gbytes.Say("1.0.23\n1.0.22\n"))
 	// 	})
-		
+
 	// })
 
 })

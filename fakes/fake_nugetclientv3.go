@@ -52,19 +52,19 @@ type FakeNugetClientv3 struct {
 		result1 string
 		result2 error
 	}
-	GetPackageVersionStub        func(context.Context, string, bool) (*nuget.PackageVersion, error)
-	getPackageVersionMutex       sync.RWMutex
-	getPackageVersionArgsForCall []struct {
+	GetPackageVersionsStub        func(context.Context, string, bool) ([]nuget.Version, error)
+	getPackageVersionsMutex       sync.RWMutex
+	getPackageVersionsArgsForCall []struct {
 		arg1 context.Context
 		arg2 string
 		arg3 bool
 	}
-	getPackageVersionReturns struct {
-		result1 *nuget.PackageVersion
+	getPackageVersionsReturns struct {
+		result1 []nuget.Version
 		result2 error
 	}
-	getPackageVersionReturnsOnCall map[int]struct {
-		result1 *nuget.PackageVersion
+	getPackageVersionsReturnsOnCall map[int]struct {
+		result1 []nuget.Version
 		result2 error
 	}
 	GetServiceIndexStub        func(context.Context) (*nuget.ServiceIndex, error)
@@ -291,67 +291,67 @@ func (fake *FakeNugetClientv3) GetNugetApiEndPointReturnsOnCall(i int, result1 s
 	}{result1, result2}
 }
 
-func (fake *FakeNugetClientv3) GetPackageVersion(arg1 context.Context, arg2 string, arg3 bool) (*nuget.PackageVersion, error) {
-	fake.getPackageVersionMutex.Lock()
-	ret, specificReturn := fake.getPackageVersionReturnsOnCall[len(fake.getPackageVersionArgsForCall)]
-	fake.getPackageVersionArgsForCall = append(fake.getPackageVersionArgsForCall, struct {
+func (fake *FakeNugetClientv3) GetPackageVersions(arg1 context.Context, arg2 string, arg3 bool) ([]nuget.Version, error) {
+	fake.getPackageVersionsMutex.Lock()
+	ret, specificReturn := fake.getPackageVersionsReturnsOnCall[len(fake.getPackageVersionsArgsForCall)]
+	fake.getPackageVersionsArgsForCall = append(fake.getPackageVersionsArgsForCall, struct {
 		arg1 context.Context
 		arg2 string
 		arg3 bool
 	}{arg1, arg2, arg3})
-	fake.recordInvocation("GetPackageVersion", []interface{}{arg1, arg2, arg3})
-	fake.getPackageVersionMutex.Unlock()
-	if fake.GetPackageVersionStub != nil {
-		return fake.GetPackageVersionStub(arg1, arg2, arg3)
+	fake.recordInvocation("GetPackageVersions", []interface{}{arg1, arg2, arg3})
+	fake.getPackageVersionsMutex.Unlock()
+	if fake.GetPackageVersionsStub != nil {
+		return fake.GetPackageVersionsStub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.getPackageVersionReturns
+	fakeReturns := fake.getPackageVersionsReturns
 	return fakeReturns.result1, fakeReturns.result2
 }
 
-func (fake *FakeNugetClientv3) GetPackageVersionCallCount() int {
-	fake.getPackageVersionMutex.RLock()
-	defer fake.getPackageVersionMutex.RUnlock()
-	return len(fake.getPackageVersionArgsForCall)
+func (fake *FakeNugetClientv3) GetPackageVersionsCallCount() int {
+	fake.getPackageVersionsMutex.RLock()
+	defer fake.getPackageVersionsMutex.RUnlock()
+	return len(fake.getPackageVersionsArgsForCall)
 }
 
-func (fake *FakeNugetClientv3) GetPackageVersionCalls(stub func(context.Context, string, bool) (*nuget.PackageVersion, error)) {
-	fake.getPackageVersionMutex.Lock()
-	defer fake.getPackageVersionMutex.Unlock()
-	fake.GetPackageVersionStub = stub
+func (fake *FakeNugetClientv3) GetPackageVersionsCalls(stub func(context.Context, string, bool) ([]nuget.Version, error)) {
+	fake.getPackageVersionsMutex.Lock()
+	defer fake.getPackageVersionsMutex.Unlock()
+	fake.GetPackageVersionsStub = stub
 }
 
-func (fake *FakeNugetClientv3) GetPackageVersionArgsForCall(i int) (context.Context, string, bool) {
-	fake.getPackageVersionMutex.RLock()
-	defer fake.getPackageVersionMutex.RUnlock()
-	argsForCall := fake.getPackageVersionArgsForCall[i]
+func (fake *FakeNugetClientv3) GetPackageVersionsArgsForCall(i int) (context.Context, string, bool) {
+	fake.getPackageVersionsMutex.RLock()
+	defer fake.getPackageVersionsMutex.RUnlock()
+	argsForCall := fake.getPackageVersionsArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
-func (fake *FakeNugetClientv3) GetPackageVersionReturns(result1 *nuget.PackageVersion, result2 error) {
-	fake.getPackageVersionMutex.Lock()
-	defer fake.getPackageVersionMutex.Unlock()
-	fake.GetPackageVersionStub = nil
-	fake.getPackageVersionReturns = struct {
-		result1 *nuget.PackageVersion
+func (fake *FakeNugetClientv3) GetPackageVersionsReturns(result1 []nuget.Version, result2 error) {
+	fake.getPackageVersionsMutex.Lock()
+	defer fake.getPackageVersionsMutex.Unlock()
+	fake.GetPackageVersionsStub = nil
+	fake.getPackageVersionsReturns = struct {
+		result1 []nuget.Version
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeNugetClientv3) GetPackageVersionReturnsOnCall(i int, result1 *nuget.PackageVersion, result2 error) {
-	fake.getPackageVersionMutex.Lock()
-	defer fake.getPackageVersionMutex.Unlock()
-	fake.GetPackageVersionStub = nil
-	if fake.getPackageVersionReturnsOnCall == nil {
-		fake.getPackageVersionReturnsOnCall = make(map[int]struct {
-			result1 *nuget.PackageVersion
+func (fake *FakeNugetClientv3) GetPackageVersionsReturnsOnCall(i int, result1 []nuget.Version, result2 error) {
+	fake.getPackageVersionsMutex.Lock()
+	defer fake.getPackageVersionsMutex.Unlock()
+	fake.GetPackageVersionsStub = nil
+	if fake.getPackageVersionsReturnsOnCall == nil {
+		fake.getPackageVersionsReturnsOnCall = make(map[int]struct {
+			result1 []nuget.Version
 			result2 error
 		})
 	}
-	fake.getPackageVersionReturnsOnCall[i] = struct {
-		result1 *nuget.PackageVersion
+	fake.getPackageVersionsReturnsOnCall[i] = struct {
+		result1 []nuget.Version
 		result2 error
 	}{result1, result2}
 }
@@ -494,8 +494,8 @@ func (fake *FakeNugetClientv3) Invocations() map[string][][]interface{} {
 	defer fake.downloadPackageMutex.RUnlock()
 	fake.getNugetApiEndPointMutex.RLock()
 	defer fake.getNugetApiEndPointMutex.RUnlock()
-	fake.getPackageVersionMutex.RLock()
-	defer fake.getPackageVersionMutex.RUnlock()
+	fake.getPackageVersionsMutex.RLock()
+	defer fake.getPackageVersionsMutex.RUnlock()
 	fake.getServiceIndexMutex.RLock()
 	defer fake.getServiceIndexMutex.RUnlock()
 	fake.searchQueryServiceMutex.RLock()

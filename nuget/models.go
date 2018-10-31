@@ -27,15 +27,22 @@ type SearchResults struct {
 
 // SearchResult from the nuget api
 type SearchResult struct {
-	ID          string `json:"id"`
-	Version     string `json:"version"`
-	Description string `json:"description"`
+	ID          string    `json:"id"`
+	Version     string    `json:"version"`
+	Description string    `json:"description"`
+	Versions    []Version `json:"versions"`
 }
 
 type PackageVersion struct {
 	ID          string `json:"id"`
 	Version     string `json:"version"`
 	Description string `json:"description"`
+}
+
+type Version struct {
+	ID        string `json:"id"`
+	Version   string `json:"version"`
+	Downloads int    `json:"downloads"`
 }
 
 type Nuspec struct {
