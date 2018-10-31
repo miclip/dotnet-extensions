@@ -61,5 +61,22 @@ var _ = Describe("Versions cmd", func() {
 			Ω(bErr).To(gbytes.Say("no version details found."))
 		})
 	})
+	// Context("versions lists all", func() {
+	// 	It("returns all the versions including prerelease", func() {
+	// 		packageVersion := nuget.PackageVersion{
+	// 			ID:          "A.Package.Name",
+	// 			Version:     "1.0.23",
+	// 			Description: "A descriptive description",
+	// 		}
+	// 		nugetClientv3.GetPackageVersionReturns(&packageVersion, nil)
+	// 		cmd.PackageName = "A.Package.Name"
+	// 		cmd.Prerelease = true
+	// 		cmd.Latest = false
+	// 		cmd.FeedUrl = "https://somefeed.com/feed.json"
+	// 		cmd.HandleVersions(ui, nugetClientv3, nil)
+	// 		Ω(bOut).To(gbytes.Say("1.0.23\n1.0.22\n"))
+	// 	})
+		
+	// })
 
 })
