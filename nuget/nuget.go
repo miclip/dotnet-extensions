@@ -1,15 +1,27 @@
 package nuget
 
 import (
-	"log"
+	"strconv"
+	"strings"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"time"
 
+	"gopkg.in/xmlpath.v1"
+)
+
+const (
+	isPackableXpath  = "/Project/PropertyGroup/IsPackable"
+	packageIDXpath   = "/Project/PropertyGroup/PackageId"
+	authorsXpath     = "/Project/PropertyGroup/Authors"
+	ownerXpath       = "/Project/PropertyGroup/Company"
+	descriptionXpath = "/Project/PropertyGroup/Description"
+	versionXpath     = "/Project/PropertyGroup/Version"
 )
 
 // NugetClientv3 ...
@@ -20,6 +32,8 @@ type NugetClientv3 interface {
 	CreateNuspec(packageID string, version string, author string, description string, owner string) Nuspec
 	DownloadPackage(ctx context.Context, packageID string, version string, targetFolder string) error
 	GetNugetApiEndPoint(ctx context.Context, resourceType string) (string, error)
+	CreateNuspecFromProject(project string, version string) (Nuspec, error)
+	AutoIncrementVersion(versionSpec string, version string) (string, error)
 }
 
 type nugetclientv3 struct {
@@ -148,20 +162,64 @@ func (client *nugetclientv3) CreateNuspec(packageID string, version string, auth
 	}
 }
 
+func (client *nugetclientv3) CreateNuspecFromProject(project string, version string) (Nuspec, error) {
+	isPackablePath := xmlpath.MustCompile(isPackableXpath)
+	packageIDPath := xmlpath.MustCompile(packageIDXpath)
+	authorPath := xmlpath.MustCompile(authorsXpath)
+	ownerPath := xmlpath.MustCompile(ownerXpath)
+	versionPath := xmlpath.MustCompile(versionXpath)
+	descriptionPath := xmlpath.MustCompile(descriptionXpath)
+
+	file, err := os.Open(project)
+	if err != nil {
+		return Nuspec{}, err
+	}
+	root, err := xmlpath.Parse(file)
+	if err != nil {
+		return Nuspec{}, err
+	}
+	if isPackable, ok := isPackablePath.String(root); ok {
+		if isPackable == "true" {
+			var id, authors, owners, description, defaultVersion string
+			if value, ok := packageIDPath.String(root); ok {
+				id = value
+
+				if value, ok := authorPath.String(root); ok {
+					authors = value
+				}
+				if value, ok := ownerPath.String(root); ok {
+					owners = value
+				}
+				if value, ok := descriptionPath.String(root); ok {
+					description = value
+				}
+				if value, ok := versionPath.String(root); ok {
+					defaultVersion = value
+				}
+				if version == "" {
+					version = defaultVersion
+				}
+				return client.CreateNuspec(id, version, authors, description, owners), nil
+			}
+		}
+	}
+	return Nuspec{}, fmt.Errorf("the project file could not be parsed %s", project)
+}
+
 func (client *nugetclientv3) GetNugetApiEndPoint(ctx context.Context, resourceType string) (string, error) {
 	serviceIndex, err := client.GetServiceIndex(ctx)
 	if err != nil {
 		return "", err
 	}
-	
+
 	for _, resource := range serviceIndex.Resources {
 		if resource.Type == resourceType {
 			return resource.ID, nil
 		}
 	}
 
-	return "", fmt.Errorf("Could not find %s Endpoint", resourceType)	
-	
+	return "", fmt.Errorf("Could not find %s Endpoint", resourceType)
+
 }
 
 func (client *nugetclientv3) GetPackageVersions(ctx context.Context, name string, preRelease bool) ([]Version, error) {
@@ -184,10 +242,28 @@ func (client *nugetclientv3) GetPackageVersions(ctx context.Context, name string
 
 	for _, result := range searchResults.Data {
 		if result.ID == name {
-			return result.Versions,	nil
-		} 
+			return result.Versions, nil
+		}
 	}
 
 	return nil, nil
 
+}
+
+func (client *nugetclientv3) AutoIncrementVersion(versionSpec string, version string) (string, error) {
+	if versionSpec == "" {
+		return version, nil
+	}
+	latestVersion := strings.Split(version, ".")
+	specVersion := strings.Split(versionSpec, ".")
+	if len(latestVersion) != len(specVersion) {
+		return "", fmt.Errorf("Version semantics don't match version spec: %s version: %s ", versionSpec, version)
+	}
+	for index := 0; index < len(specVersion); index++ {
+		if specVersion[index] == "*" {
+			i, _ := strconv.Atoi(latestVersion[index])
+			latestVersion[index] = strconv.Itoa(i + 1)
+		}
+	}
+	return strings.Join(latestVersion, "."), nil
 }

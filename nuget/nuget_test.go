@@ -156,7 +156,7 @@ var _ = Describe("ServiceIndex", func() {
 	})
 })
 
-var _ = Describe("GetPackageVersion", func() {
+var _ = Describe("GetPackageVersions", func() {
 	var server *ghttp.Server
 	var returnedServiceIndex nuget.ServiceIndex
 	var returnedSearchResults nuget.SearchResults
@@ -255,6 +255,59 @@ var _ = Describe("GetPackageVersion", func() {
 	})
 })
 
+var _ = Describe("Versioning", func(){
+	Context("AutoIncrementVersions", func() {
+		It("increments patch", func() {
+			client := nuget.NewNugetClientv3("http://nuget.org/somefeed/api/v3/index.json")
+			version, err := client.AutoIncrementVersion("1.0.*","1.1.9") 
+			Ω(err).Should(Succeed())
+			Ω(version).Should(Equal("1.1.10"))
+		})
+		It("increments minor", func() {
+			client := nuget.NewNugetClientv3("http://nuget.org/somefeed/api/v3/index.json")
+			version, err := client.AutoIncrementVersion("1.*.0","1.1.9") 
+			Ω(err).Should(Succeed())
+			Ω(version).Should(Equal("1.2.9"))
+		})
+		It("increments major", func() {
+			client := nuget.NewNugetClientv3("http://nuget.org/somefeed/api/v3/index.json")
+			version, err := client.AutoIncrementVersion("*.1.0","1.1.9") 
+			Ω(err).Should(Succeed())
+			Ω(version).Should(Equal("2.1.9"))
+		})
+		It("increments all", func() {
+			client := nuget.NewNugetClientv3("http://nuget.org/somefeed/api/v3/index.json")
+			version, err := client.AutoIncrementVersion("*.*.*","1.1.9") 
+			Ω(err).Should(Succeed())
+			Ω(version).Should(Equal("2.2.10"))
+		})
+		It("increments build with suffix", func() {
+			client := nuget.NewNugetClientv3("http://nuget.org/somefeed/api/v3/index.json")
+			version, err := client.AutoIncrementVersion("1.0.0-dev.*","1.0.0-dev.187") 
+			Ω(err).Should(Succeed())
+			Ω(version).Should(Equal("1.0.0-dev.188"))
+		})
+		It("errors when schemas don't match", func() {
+			client := nuget.NewNugetClientv3("http://nuget.org/somefeed/api/v3/index.json")
+			version, err := client.AutoIncrementVersion("1.0.0-dev.*","1.0.0") 
+			Ω(err).ShouldNot(Succeed())
+			Ω(version).Should(Equal(""))
+		})
+		It("returns unmodified version if no mask", func() {
+			client := nuget.NewNugetClientv3("http://nuget.org/somefeed/api/v3/index.json")
+			version, err := client.AutoIncrementVersion("1.0.0","1.1.9") 
+			Ω(err).Should(Succeed())
+			Ω(version).Should(Equal("1.1.9"))
+		})
+		It("returns unmodified version if no mask", func() {
+			client := nuget.NewNugetClientv3("http://nuget.org/somefeed/api/v3/index.json")
+			version, err := client.AutoIncrementVersion("","1.1.9") 
+			Ω(err).Should(Succeed())
+			Ω(version).Should(Equal("1.1.9"))
+		})
+	})
+})
+
 var _ = Describe("CreateNuspec", func() {
 	Context("nuspec encoding", func() {
 		It("returns a valid nuspec ", func() {
@@ -262,6 +315,30 @@ var _ = Describe("CreateNuspec", func() {
 			nuspec := client.CreateNuspec("packageID", "1.0.0", "Michael Lipscombe", "description", "owner")
 			output, _ := xml.Marshal(nuspec)
 			Ω(string(output)).To(Equal("<package xmlns=\"http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd\"><metadata><id>packageID</id><version>1.0.0</version><authors>Michael Lipscombe</authors><owners>owner</owners><requireLicenseAcceptance>false</requireLicenseAcceptance><description>description</description></metadata></package>"))
+		})
+	})
+	Context("nuspec from project file", func() {
+		It("returns a valid nuspec based on a csproj with new version", func() {
+			client := nuget.NewNugetClientv3("http://nuget.org/somefeed/api/v3/index.json")
+			nuspec, err := client.CreateNuspecFromProject("../test_files/TestApplication.csproj", "9.9.9")
+			Ω(err).Should(Succeed())
+			Ω(nuspec.ID).Should(Equal("DotnetResource.TestApplication"))
+			Ω(nuspec.Version).Should(Equal("9.9.9"))
+			Ω(nuspec.Authors).Should(Equal("Michael Lipscombe"))
+			Ω(nuspec.Owners).Should(Equal("Pivotal"))
+			Ω(nuspec.Description).Should(Equal("A test application for dotnet-extensions"))
+			Ω(nuspec.RequireLicenseAcceptance).Should(Equal(false))
+		})
+		It("returns a valid nuspec based on a csproj keeping default nuspec version", func() {
+			client := nuget.NewNugetClientv3("http://nuget.org/somefeed/api/v3/index.json")
+			nuspec, err := client.CreateNuspecFromProject("../test_files/TestApplication.csproj", "")
+			Ω(err).Should(Succeed())
+			Ω(nuspec.ID).Should(Equal("DotnetResource.TestApplication"))
+			Ω(nuspec.Version).Should(Equal("1.0.0"))
+			Ω(nuspec.Authors).Should(Equal("Michael Lipscombe"))
+			Ω(nuspec.Owners).Should(Equal("Pivotal"))
+			Ω(nuspec.Description).Should(Equal("A test application for dotnet-extensions"))
+			Ω(nuspec.RequireLicenseAcceptance).Should(Equal(false))
 		})
 	})
 })

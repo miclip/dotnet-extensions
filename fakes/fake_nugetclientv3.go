@@ -9,6 +9,20 @@ import (
 )
 
 type FakeNugetClientv3 struct {
+	AutoIncrementVersionStub        func(string, string) (string, error)
+	autoIncrementVersionMutex       sync.RWMutex
+	autoIncrementVersionArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	autoIncrementVersionReturns struct {
+		result1 string
+		result2 error
+	}
+	autoIncrementVersionReturnsOnCall map[int]struct {
+		result1 string
+		result2 error
+	}
 	CreateNuspecStub        func(string, string, string, string, string) nuget.Nuspec
 	createNuspecMutex       sync.RWMutex
 	createNuspecArgsForCall []struct {
@@ -23,6 +37,20 @@ type FakeNugetClientv3 struct {
 	}
 	createNuspecReturnsOnCall map[int]struct {
 		result1 nuget.Nuspec
+	}
+	CreateNuspecFromProjectStub        func(string, string) (nuget.Nuspec, error)
+	createNuspecFromProjectMutex       sync.RWMutex
+	createNuspecFromProjectArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	createNuspecFromProjectReturns struct {
+		result1 nuget.Nuspec
+		result2 error
+	}
+	createNuspecFromProjectReturnsOnCall map[int]struct {
+		result1 nuget.Nuspec
+		result2 error
 	}
 	DownloadPackageStub        func(context.Context, string, string, string) error
 	downloadPackageMutex       sync.RWMutex
@@ -100,6 +128,70 @@ type FakeNugetClientv3 struct {
 	invocationsMutex sync.RWMutex
 }
 
+func (fake *FakeNugetClientv3) AutoIncrementVersion(arg1 string, arg2 string) (string, error) {
+	fake.autoIncrementVersionMutex.Lock()
+	ret, specificReturn := fake.autoIncrementVersionReturnsOnCall[len(fake.autoIncrementVersionArgsForCall)]
+	fake.autoIncrementVersionArgsForCall = append(fake.autoIncrementVersionArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	fake.recordInvocation("AutoIncrementVersion", []interface{}{arg1, arg2})
+	fake.autoIncrementVersionMutex.Unlock()
+	if fake.AutoIncrementVersionStub != nil {
+		return fake.AutoIncrementVersionStub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.autoIncrementVersionReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeNugetClientv3) AutoIncrementVersionCallCount() int {
+	fake.autoIncrementVersionMutex.RLock()
+	defer fake.autoIncrementVersionMutex.RUnlock()
+	return len(fake.autoIncrementVersionArgsForCall)
+}
+
+func (fake *FakeNugetClientv3) AutoIncrementVersionCalls(stub func(string, string) (string, error)) {
+	fake.autoIncrementVersionMutex.Lock()
+	defer fake.autoIncrementVersionMutex.Unlock()
+	fake.AutoIncrementVersionStub = stub
+}
+
+func (fake *FakeNugetClientv3) AutoIncrementVersionArgsForCall(i int) (string, string) {
+	fake.autoIncrementVersionMutex.RLock()
+	defer fake.autoIncrementVersionMutex.RUnlock()
+	argsForCall := fake.autoIncrementVersionArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeNugetClientv3) AutoIncrementVersionReturns(result1 string, result2 error) {
+	fake.autoIncrementVersionMutex.Lock()
+	defer fake.autoIncrementVersionMutex.Unlock()
+	fake.AutoIncrementVersionStub = nil
+	fake.autoIncrementVersionReturns = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeNugetClientv3) AutoIncrementVersionReturnsOnCall(i int, result1 string, result2 error) {
+	fake.autoIncrementVersionMutex.Lock()
+	defer fake.autoIncrementVersionMutex.Unlock()
+	fake.AutoIncrementVersionStub = nil
+	if fake.autoIncrementVersionReturnsOnCall == nil {
+		fake.autoIncrementVersionReturnsOnCall = make(map[int]struct {
+			result1 string
+			result2 error
+		})
+	}
+	fake.autoIncrementVersionReturnsOnCall[i] = struct {
+		result1 string
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeNugetClientv3) CreateNuspec(arg1 string, arg2 string, arg3 string, arg4 string, arg5 string) nuget.Nuspec {
 	fake.createNuspecMutex.Lock()
 	ret, specificReturn := fake.createNuspecReturnsOnCall[len(fake.createNuspecArgsForCall)]
@@ -162,6 +254,70 @@ func (fake *FakeNugetClientv3) CreateNuspecReturnsOnCall(i int, result1 nuget.Nu
 	fake.createNuspecReturnsOnCall[i] = struct {
 		result1 nuget.Nuspec
 	}{result1}
+}
+
+func (fake *FakeNugetClientv3) CreateNuspecFromProject(arg1 string, arg2 string) (nuget.Nuspec, error) {
+	fake.createNuspecFromProjectMutex.Lock()
+	ret, specificReturn := fake.createNuspecFromProjectReturnsOnCall[len(fake.createNuspecFromProjectArgsForCall)]
+	fake.createNuspecFromProjectArgsForCall = append(fake.createNuspecFromProjectArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	fake.recordInvocation("CreateNuspecFromProject", []interface{}{arg1, arg2})
+	fake.createNuspecFromProjectMutex.Unlock()
+	if fake.CreateNuspecFromProjectStub != nil {
+		return fake.CreateNuspecFromProjectStub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.createNuspecFromProjectReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeNugetClientv3) CreateNuspecFromProjectCallCount() int {
+	fake.createNuspecFromProjectMutex.RLock()
+	defer fake.createNuspecFromProjectMutex.RUnlock()
+	return len(fake.createNuspecFromProjectArgsForCall)
+}
+
+func (fake *FakeNugetClientv3) CreateNuspecFromProjectCalls(stub func(string, string) (nuget.Nuspec, error)) {
+	fake.createNuspecFromProjectMutex.Lock()
+	defer fake.createNuspecFromProjectMutex.Unlock()
+	fake.CreateNuspecFromProjectStub = stub
+}
+
+func (fake *FakeNugetClientv3) CreateNuspecFromProjectArgsForCall(i int) (string, string) {
+	fake.createNuspecFromProjectMutex.RLock()
+	defer fake.createNuspecFromProjectMutex.RUnlock()
+	argsForCall := fake.createNuspecFromProjectArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeNugetClientv3) CreateNuspecFromProjectReturns(result1 nuget.Nuspec, result2 error) {
+	fake.createNuspecFromProjectMutex.Lock()
+	defer fake.createNuspecFromProjectMutex.Unlock()
+	fake.CreateNuspecFromProjectStub = nil
+	fake.createNuspecFromProjectReturns = struct {
+		result1 nuget.Nuspec
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeNugetClientv3) CreateNuspecFromProjectReturnsOnCall(i int, result1 nuget.Nuspec, result2 error) {
+	fake.createNuspecFromProjectMutex.Lock()
+	defer fake.createNuspecFromProjectMutex.Unlock()
+	fake.CreateNuspecFromProjectStub = nil
+	if fake.createNuspecFromProjectReturnsOnCall == nil {
+		fake.createNuspecFromProjectReturnsOnCall = make(map[int]struct {
+			result1 nuget.Nuspec
+			result2 error
+		})
+	}
+	fake.createNuspecFromProjectReturnsOnCall[i] = struct {
+		result1 nuget.Nuspec
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *FakeNugetClientv3) DownloadPackage(arg1 context.Context, arg2 string, arg3 string, arg4 string) error {
@@ -488,8 +644,12 @@ func (fake *FakeNugetClientv3) SearchQueryServiceReturnsOnCall(i int, result1 *n
 func (fake *FakeNugetClientv3) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.autoIncrementVersionMutex.RLock()
+	defer fake.autoIncrementVersionMutex.RUnlock()
 	fake.createNuspecMutex.RLock()
 	defer fake.createNuspecMutex.RUnlock()
+	fake.createNuspecFromProjectMutex.RLock()
+	defer fake.createNuspecFromProjectMutex.RUnlock()
 	fake.downloadPackageMutex.RLock()
 	defer fake.downloadPackageMutex.RUnlock()
 	fake.getNugetApiEndPointMutex.RLock()
