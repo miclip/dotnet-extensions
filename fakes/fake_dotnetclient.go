@@ -2,482 +2,94 @@
 package fakes
 
 import (
-	io "io"
 	sync "sync"
 
 	dotnet "github.com/miclip/dotnet-extensions/dotnet"
 )
 
 type FakeDotnetClient struct {
-	AddFileToPackageStub        func(string, string, string, io.Reader) error
-	addFileToPackageMutex       sync.RWMutex
-	addFileToPackageArgsForCall []struct {
+	SimplePackStub        func(string, string, string, string) (string, error)
+	simplePackMutex       sync.RWMutex
+	simplePackArgsForCall []struct {
 		arg1 string
 		arg2 string
 		arg3 string
-		arg4 io.Reader
+		arg4 string
 	}
-	addFileToPackageReturns struct {
-		result1 error
-	}
-	addFileToPackageReturnsOnCall map[int]struct {
-		result1 error
-	}
-	ManualPackStub        func(string, string) ([]byte, error)
-	manualPackMutex       sync.RWMutex
-	manualPackArgsForCall []struct {
-		arg1 string
-		arg2 string
-	}
-	manualPackReturns struct {
-		result1 []byte
+	simplePackReturns struct {
+		result1 string
 		result2 error
 	}
-	manualPackReturnsOnCall map[int]struct {
-		result1 []byte
-		result2 error
-	}
-	ManualUnpackStub        func(string, string) ([]byte, error)
-	manualUnpackMutex       sync.RWMutex
-	manualUnpackArgsForCall []struct {
-		arg1 string
-		arg2 string
-	}
-	manualUnpackReturns struct {
-		result1 []byte
-		result2 error
-	}
-	manualUnpackReturnsOnCall map[int]struct {
-		result1 []byte
-		result2 error
-	}
-	PackStub        func(string, string) ([]byte, error)
-	packMutex       sync.RWMutex
-	packArgsForCall []struct {
-		arg1 string
-		arg2 string
-	}
-	packReturns struct {
-		result1 []byte
-		result2 error
-	}
-	packReturnsOnCall map[int]struct {
-		result1 []byte
-		result2 error
-	}
-	PublishStub        func(string, string) ([]byte, error)
-	publishMutex       sync.RWMutex
-	publishArgsForCall []struct {
-		arg1 string
-		arg2 string
-	}
-	publishReturns struct {
-		result1 []byte
-		result2 error
-	}
-	publishReturnsOnCall map[int]struct {
-		result1 []byte
-		result2 error
-	}
-	PushStub        func(string, string, int) ([]byte, error)
-	pushMutex       sync.RWMutex
-	pushArgsForCall []struct {
-		arg1 string
-		arg2 string
-		arg3 int
-	}
-	pushReturns struct {
-		result1 []byte
-		result2 error
-	}
-	pushReturnsOnCall map[int]struct {
-		result1 []byte
+	simplePackReturnsOnCall map[int]struct {
+		result1 string
 		result2 error
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeDotnetClient) AddFileToPackage(arg1 string, arg2 string, arg3 string, arg4 io.Reader) error {
-	fake.addFileToPackageMutex.Lock()
-	ret, specificReturn := fake.addFileToPackageReturnsOnCall[len(fake.addFileToPackageArgsForCall)]
-	fake.addFileToPackageArgsForCall = append(fake.addFileToPackageArgsForCall, struct {
+func (fake *FakeDotnetClient) SimplePack(arg1 string, arg2 string, arg3 string, arg4 string) (string, error) {
+	fake.simplePackMutex.Lock()
+	ret, specificReturn := fake.simplePackReturnsOnCall[len(fake.simplePackArgsForCall)]
+	fake.simplePackArgsForCall = append(fake.simplePackArgsForCall, struct {
 		arg1 string
 		arg2 string
 		arg3 string
-		arg4 io.Reader
+		arg4 string
 	}{arg1, arg2, arg3, arg4})
-	fake.recordInvocation("AddFileToPackage", []interface{}{arg1, arg2, arg3, arg4})
-	fake.addFileToPackageMutex.Unlock()
-	if fake.AddFileToPackageStub != nil {
-		return fake.AddFileToPackageStub(arg1, arg2, arg3, arg4)
+	fake.recordInvocation("SimplePack", []interface{}{arg1, arg2, arg3, arg4})
+	fake.simplePackMutex.Unlock()
+	if fake.SimplePackStub != nil {
+		return fake.SimplePackStub(arg1, arg2, arg3, arg4)
 	}
 	if specificReturn {
-		return ret.result1
+		return ret.result1, ret.result2
 	}
-	fakeReturns := fake.addFileToPackageReturns
-	return fakeReturns.result1
+	fakeReturns := fake.simplePackReturns
+	return fakeReturns.result1, fakeReturns.result2
 }
 
-func (fake *FakeDotnetClient) AddFileToPackageCallCount() int {
-	fake.addFileToPackageMutex.RLock()
-	defer fake.addFileToPackageMutex.RUnlock()
-	return len(fake.addFileToPackageArgsForCall)
+func (fake *FakeDotnetClient) SimplePackCallCount() int {
+	fake.simplePackMutex.RLock()
+	defer fake.simplePackMutex.RUnlock()
+	return len(fake.simplePackArgsForCall)
 }
 
-func (fake *FakeDotnetClient) AddFileToPackageCalls(stub func(string, string, string, io.Reader) error) {
-	fake.addFileToPackageMutex.Lock()
-	defer fake.addFileToPackageMutex.Unlock()
-	fake.AddFileToPackageStub = stub
+func (fake *FakeDotnetClient) SimplePackCalls(stub func(string, string, string, string) (string, error)) {
+	fake.simplePackMutex.Lock()
+	defer fake.simplePackMutex.Unlock()
+	fake.SimplePackStub = stub
 }
 
-func (fake *FakeDotnetClient) AddFileToPackageArgsForCall(i int) (string, string, string, io.Reader) {
-	fake.addFileToPackageMutex.RLock()
-	defer fake.addFileToPackageMutex.RUnlock()
-	argsForCall := fake.addFileToPackageArgsForCall[i]
+func (fake *FakeDotnetClient) SimplePackArgsForCall(i int) (string, string, string, string) {
+	fake.simplePackMutex.RLock()
+	defer fake.simplePackMutex.RUnlock()
+	argsForCall := fake.simplePackArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
 }
 
-func (fake *FakeDotnetClient) AddFileToPackageReturns(result1 error) {
-	fake.addFileToPackageMutex.Lock()
-	defer fake.addFileToPackageMutex.Unlock()
-	fake.AddFileToPackageStub = nil
-	fake.addFileToPackageReturns = struct {
-		result1 error
-	}{result1}
-}
-
-func (fake *FakeDotnetClient) AddFileToPackageReturnsOnCall(i int, result1 error) {
-	fake.addFileToPackageMutex.Lock()
-	defer fake.addFileToPackageMutex.Unlock()
-	fake.AddFileToPackageStub = nil
-	if fake.addFileToPackageReturnsOnCall == nil {
-		fake.addFileToPackageReturnsOnCall = make(map[int]struct {
-			result1 error
-		})
-	}
-	fake.addFileToPackageReturnsOnCall[i] = struct {
-		result1 error
-	}{result1}
-}
-
-func (fake *FakeDotnetClient) ManualPack(arg1 string, arg2 string) ([]byte, error) {
-	fake.manualPackMutex.Lock()
-	ret, specificReturn := fake.manualPackReturnsOnCall[len(fake.manualPackArgsForCall)]
-	fake.manualPackArgsForCall = append(fake.manualPackArgsForCall, struct {
-		arg1 string
-		arg2 string
-	}{arg1, arg2})
-	fake.recordInvocation("ManualPack", []interface{}{arg1, arg2})
-	fake.manualPackMutex.Unlock()
-	if fake.ManualPackStub != nil {
-		return fake.ManualPackStub(arg1, arg2)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	fakeReturns := fake.manualPackReturns
-	return fakeReturns.result1, fakeReturns.result2
-}
-
-func (fake *FakeDotnetClient) ManualPackCallCount() int {
-	fake.manualPackMutex.RLock()
-	defer fake.manualPackMutex.RUnlock()
-	return len(fake.manualPackArgsForCall)
-}
-
-func (fake *FakeDotnetClient) ManualPackCalls(stub func(string, string) ([]byte, error)) {
-	fake.manualPackMutex.Lock()
-	defer fake.manualPackMutex.Unlock()
-	fake.ManualPackStub = stub
-}
-
-func (fake *FakeDotnetClient) ManualPackArgsForCall(i int) (string, string) {
-	fake.manualPackMutex.RLock()
-	defer fake.manualPackMutex.RUnlock()
-	argsForCall := fake.manualPackArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
-}
-
-func (fake *FakeDotnetClient) ManualPackReturns(result1 []byte, result2 error) {
-	fake.manualPackMutex.Lock()
-	defer fake.manualPackMutex.Unlock()
-	fake.ManualPackStub = nil
-	fake.manualPackReturns = struct {
-		result1 []byte
+func (fake *FakeDotnetClient) SimplePackReturns(result1 string, result2 error) {
+	fake.simplePackMutex.Lock()
+	defer fake.simplePackMutex.Unlock()
+	fake.SimplePackStub = nil
+	fake.simplePackReturns = struct {
+		result1 string
 		result2 error
 	}{result1, result2}
 }
 
-func (fake *FakeDotnetClient) ManualPackReturnsOnCall(i int, result1 []byte, result2 error) {
-	fake.manualPackMutex.Lock()
-	defer fake.manualPackMutex.Unlock()
-	fake.ManualPackStub = nil
-	if fake.manualPackReturnsOnCall == nil {
-		fake.manualPackReturnsOnCall = make(map[int]struct {
-			result1 []byte
+func (fake *FakeDotnetClient) SimplePackReturnsOnCall(i int, result1 string, result2 error) {
+	fake.simplePackMutex.Lock()
+	defer fake.simplePackMutex.Unlock()
+	fake.SimplePackStub = nil
+	if fake.simplePackReturnsOnCall == nil {
+		fake.simplePackReturnsOnCall = make(map[int]struct {
+			result1 string
 			result2 error
 		})
 	}
-	fake.manualPackReturnsOnCall[i] = struct {
-		result1 []byte
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeDotnetClient) ManualUnpack(arg1 string, arg2 string) ([]byte, error) {
-	fake.manualUnpackMutex.Lock()
-	ret, specificReturn := fake.manualUnpackReturnsOnCall[len(fake.manualUnpackArgsForCall)]
-	fake.manualUnpackArgsForCall = append(fake.manualUnpackArgsForCall, struct {
-		arg1 string
-		arg2 string
-	}{arg1, arg2})
-	fake.recordInvocation("ManualUnpack", []interface{}{arg1, arg2})
-	fake.manualUnpackMutex.Unlock()
-	if fake.ManualUnpackStub != nil {
-		return fake.ManualUnpackStub(arg1, arg2)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	fakeReturns := fake.manualUnpackReturns
-	return fakeReturns.result1, fakeReturns.result2
-}
-
-func (fake *FakeDotnetClient) ManualUnpackCallCount() int {
-	fake.manualUnpackMutex.RLock()
-	defer fake.manualUnpackMutex.RUnlock()
-	return len(fake.manualUnpackArgsForCall)
-}
-
-func (fake *FakeDotnetClient) ManualUnpackCalls(stub func(string, string) ([]byte, error)) {
-	fake.manualUnpackMutex.Lock()
-	defer fake.manualUnpackMutex.Unlock()
-	fake.ManualUnpackStub = stub
-}
-
-func (fake *FakeDotnetClient) ManualUnpackArgsForCall(i int) (string, string) {
-	fake.manualUnpackMutex.RLock()
-	defer fake.manualUnpackMutex.RUnlock()
-	argsForCall := fake.manualUnpackArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
-}
-
-func (fake *FakeDotnetClient) ManualUnpackReturns(result1 []byte, result2 error) {
-	fake.manualUnpackMutex.Lock()
-	defer fake.manualUnpackMutex.Unlock()
-	fake.ManualUnpackStub = nil
-	fake.manualUnpackReturns = struct {
-		result1 []byte
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeDotnetClient) ManualUnpackReturnsOnCall(i int, result1 []byte, result2 error) {
-	fake.manualUnpackMutex.Lock()
-	defer fake.manualUnpackMutex.Unlock()
-	fake.ManualUnpackStub = nil
-	if fake.manualUnpackReturnsOnCall == nil {
-		fake.manualUnpackReturnsOnCall = make(map[int]struct {
-			result1 []byte
-			result2 error
-		})
-	}
-	fake.manualUnpackReturnsOnCall[i] = struct {
-		result1 []byte
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeDotnetClient) Pack(arg1 string, arg2 string) ([]byte, error) {
-	fake.packMutex.Lock()
-	ret, specificReturn := fake.packReturnsOnCall[len(fake.packArgsForCall)]
-	fake.packArgsForCall = append(fake.packArgsForCall, struct {
-		arg1 string
-		arg2 string
-	}{arg1, arg2})
-	fake.recordInvocation("Pack", []interface{}{arg1, arg2})
-	fake.packMutex.Unlock()
-	if fake.PackStub != nil {
-		return fake.PackStub(arg1, arg2)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	fakeReturns := fake.packReturns
-	return fakeReturns.result1, fakeReturns.result2
-}
-
-func (fake *FakeDotnetClient) PackCallCount() int {
-	fake.packMutex.RLock()
-	defer fake.packMutex.RUnlock()
-	return len(fake.packArgsForCall)
-}
-
-func (fake *FakeDotnetClient) PackCalls(stub func(string, string) ([]byte, error)) {
-	fake.packMutex.Lock()
-	defer fake.packMutex.Unlock()
-	fake.PackStub = stub
-}
-
-func (fake *FakeDotnetClient) PackArgsForCall(i int) (string, string) {
-	fake.packMutex.RLock()
-	defer fake.packMutex.RUnlock()
-	argsForCall := fake.packArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
-}
-
-func (fake *FakeDotnetClient) PackReturns(result1 []byte, result2 error) {
-	fake.packMutex.Lock()
-	defer fake.packMutex.Unlock()
-	fake.PackStub = nil
-	fake.packReturns = struct {
-		result1 []byte
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeDotnetClient) PackReturnsOnCall(i int, result1 []byte, result2 error) {
-	fake.packMutex.Lock()
-	defer fake.packMutex.Unlock()
-	fake.PackStub = nil
-	if fake.packReturnsOnCall == nil {
-		fake.packReturnsOnCall = make(map[int]struct {
-			result1 []byte
-			result2 error
-		})
-	}
-	fake.packReturnsOnCall[i] = struct {
-		result1 []byte
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeDotnetClient) Publish(arg1 string, arg2 string) ([]byte, error) {
-	fake.publishMutex.Lock()
-	ret, specificReturn := fake.publishReturnsOnCall[len(fake.publishArgsForCall)]
-	fake.publishArgsForCall = append(fake.publishArgsForCall, struct {
-		arg1 string
-		arg2 string
-	}{arg1, arg2})
-	fake.recordInvocation("Publish", []interface{}{arg1, arg2})
-	fake.publishMutex.Unlock()
-	if fake.PublishStub != nil {
-		return fake.PublishStub(arg1, arg2)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	fakeReturns := fake.publishReturns
-	return fakeReturns.result1, fakeReturns.result2
-}
-
-func (fake *FakeDotnetClient) PublishCallCount() int {
-	fake.publishMutex.RLock()
-	defer fake.publishMutex.RUnlock()
-	return len(fake.publishArgsForCall)
-}
-
-func (fake *FakeDotnetClient) PublishCalls(stub func(string, string) ([]byte, error)) {
-	fake.publishMutex.Lock()
-	defer fake.publishMutex.Unlock()
-	fake.PublishStub = stub
-}
-
-func (fake *FakeDotnetClient) PublishArgsForCall(i int) (string, string) {
-	fake.publishMutex.RLock()
-	defer fake.publishMutex.RUnlock()
-	argsForCall := fake.publishArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
-}
-
-func (fake *FakeDotnetClient) PublishReturns(result1 []byte, result2 error) {
-	fake.publishMutex.Lock()
-	defer fake.publishMutex.Unlock()
-	fake.PublishStub = nil
-	fake.publishReturns = struct {
-		result1 []byte
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeDotnetClient) PublishReturnsOnCall(i int, result1 []byte, result2 error) {
-	fake.publishMutex.Lock()
-	defer fake.publishMutex.Unlock()
-	fake.PublishStub = nil
-	if fake.publishReturnsOnCall == nil {
-		fake.publishReturnsOnCall = make(map[int]struct {
-			result1 []byte
-			result2 error
-		})
-	}
-	fake.publishReturnsOnCall[i] = struct {
-		result1 []byte
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeDotnetClient) Push(arg1 string, arg2 string, arg3 int) ([]byte, error) {
-	fake.pushMutex.Lock()
-	ret, specificReturn := fake.pushReturnsOnCall[len(fake.pushArgsForCall)]
-	fake.pushArgsForCall = append(fake.pushArgsForCall, struct {
-		arg1 string
-		arg2 string
-		arg3 int
-	}{arg1, arg2, arg3})
-	fake.recordInvocation("Push", []interface{}{arg1, arg2, arg3})
-	fake.pushMutex.Unlock()
-	if fake.PushStub != nil {
-		return fake.PushStub(arg1, arg2, arg3)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	fakeReturns := fake.pushReturns
-	return fakeReturns.result1, fakeReturns.result2
-}
-
-func (fake *FakeDotnetClient) PushCallCount() int {
-	fake.pushMutex.RLock()
-	defer fake.pushMutex.RUnlock()
-	return len(fake.pushArgsForCall)
-}
-
-func (fake *FakeDotnetClient) PushCalls(stub func(string, string, int) ([]byte, error)) {
-	fake.pushMutex.Lock()
-	defer fake.pushMutex.Unlock()
-	fake.PushStub = stub
-}
-
-func (fake *FakeDotnetClient) PushArgsForCall(i int) (string, string, int) {
-	fake.pushMutex.RLock()
-	defer fake.pushMutex.RUnlock()
-	argsForCall := fake.pushArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
-}
-
-func (fake *FakeDotnetClient) PushReturns(result1 []byte, result2 error) {
-	fake.pushMutex.Lock()
-	defer fake.pushMutex.Unlock()
-	fake.PushStub = nil
-	fake.pushReturns = struct {
-		result1 []byte
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *FakeDotnetClient) PushReturnsOnCall(i int, result1 []byte, result2 error) {
-	fake.pushMutex.Lock()
-	defer fake.pushMutex.Unlock()
-	fake.PushStub = nil
-	if fake.pushReturnsOnCall == nil {
-		fake.pushReturnsOnCall = make(map[int]struct {
-			result1 []byte
-			result2 error
-		})
-	}
-	fake.pushReturnsOnCall[i] = struct {
-		result1 []byte
+	fake.simplePackReturnsOnCall[i] = struct {
+		result1 string
 		result2 error
 	}{result1, result2}
 }
@@ -485,18 +97,8 @@ func (fake *FakeDotnetClient) PushReturnsOnCall(i int, result1 []byte, result2 e
 func (fake *FakeDotnetClient) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.addFileToPackageMutex.RLock()
-	defer fake.addFileToPackageMutex.RUnlock()
-	fake.manualPackMutex.RLock()
-	defer fake.manualPackMutex.RUnlock()
-	fake.manualUnpackMutex.RLock()
-	defer fake.manualUnpackMutex.RUnlock()
-	fake.packMutex.RLock()
-	defer fake.packMutex.RUnlock()
-	fake.publishMutex.RLock()
-	defer fake.publishMutex.RUnlock()
-	fake.pushMutex.RLock()
-	defer fake.pushMutex.RUnlock()
+	fake.simplePackMutex.RLock()
+	defer fake.simplePackMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

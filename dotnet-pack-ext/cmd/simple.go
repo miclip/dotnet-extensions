@@ -15,12 +15,15 @@
 package cmd
 
 import (
+	"bytes"
 	"context"
+	"encoding/xml"
 	"os"
 
 	"github.com/miclip/dotnet-extensions/dotnet"
 	"github.com/miclip/dotnet-extensions/nuget"
 	"github.com/miclip/dotnet-extensions/ui"
+	"github.com/miclip/dotnet-extensions"
 	"github.com/spf13/cobra"
 )
 
@@ -34,6 +37,7 @@ var (
 	NoRestore     bool
 	Runtime       string
 	Framework     string
+	BasePath string
 )
 
 // simpleCmd represents the recipe command
@@ -45,7 +49,7 @@ var simpleCmd = &cobra.Command{
 	Create a simple package, intended for Applications that have been published`,
 	Run: func(cmd *cobra.Command, args []string) {
 		nugetClientv3 := nuget.NewNugetClientv3(FeedUrl)
-		dotnetClient := dotnet.NewDotnetClient(args[0], Framework, Runtime, "")
+		dotnetClient := dotnet.NewDotnetClient(args[0], Framework, Runtime)
 		ui := ui.NewConsoleUI()
 		HandleSimplePack(ui, nugetClientv3, dotnetClient, args)
 	},
@@ -59,14 +63,14 @@ func HandleSimplePack(ui ui.UI, nugetClientv3 nuget.NugetClientv3, dotnetClient 
 		return
 	}
 	nuspec, _ := nugetClientv3.CreateNuspecFromProject(ProjectFile, "")
-	
+
 	if AutoIncrement {
 		versions, err := nugetClientv3.GetPackageVersions(context.Background(), nuspec.ID, true)
 		if err != nil {
 			ui.ErrorLinef("error retrieving latest version from feed. %v", err)
 			return
 		}
-		newVersion, err := nugetClientv3.AutoIncrementVersion(Version,versions[len(versions)-1].Version)
+		newVersion, err := nugetClientv3.AutoIncrementVersion(Version, versions[len(versions)-1].Version)
 		if err != nil {
 			ui.ErrorLinef("error incrementing version %v", err)
 			return
@@ -74,12 +78,29 @@ func HandleSimplePack(ui ui.UI, nugetClientv3 nuget.NugetClientv3, dotnetClient 
 		nuspec.Version = newVersion
 	}
 	ui.PrintLinef("Package %s Version: %s", nuspec.ID, nuspec.Version)
+
+	enc, err := xml.Marshal(nuspec)
+	enc = []byte(xml.Header + string(enc))
+	if err != nil {
+		ui.ErrorLinef("error creating nuspec file", err)
+	}
+	reader := bytes.NewReader(enc)
+	err= utils.CreateFileInDirectory(BasePath, nuspec.ID+".nuspec", reader)
+	if err != nil {
+		ui.ErrorLinef("error adding nuspec", err)
+	}
+	packagePath, err := dotnetClient.SimplePack(nuspec.ID, nuspec.Version, BasePath, OutputDir)
+	if err != nil {
+		ui.ErrorLinef("error creating package", err)
+	}
+	ui.PrintLinef("Package Path %s", packagePath)
 }
 
 func init() {
 	rootCmd.AddCommand(simpleCmd)
 	simpleCmd.Flags().StringVarP(&FeedUrl, "source", "s", "", "Specifies the nuget server URL.")
 	simpleCmd.Flags().StringVarP(&Version, "version", "v", "", "Version of the package")
+	simpleCmd.Flags().StringVarP(&BasePath, "basepath", "b", "", "Version of the package")
 	simpleCmd.Flags().BoolVarP(&AutoIncrement, "autoincrement", "a", false, "Automatically increments the version based on latest from nuget feed, requires --source")
 	simpleCmd.Flags().StringVarP(&OutputDir, "output", "o", "", "The output directory to place built packages in.")
 	simpleCmd.Flags().BoolVarP(&NoBuild, "no-build", "", false, "Do not build the project before packing. Implies --no-restore.")
@@ -87,3 +108,5 @@ func init() {
 	simpleCmd.Flags().StringVarP(&Runtime, "runtime", "r", "", "The target runtime to restore packages for.")
 	simpleCmd.Flags().StringVarP(&Framework, "framework", "f", "", "The target framework")
 }
+
+

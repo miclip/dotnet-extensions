@@ -2,19 +2,19 @@ package dotnet_test
 
 
 import (
-	"github.com/miclip/dotnet-extensions/fakes"
+	//"github.com/miclip/dotnet-extensions/fakes"
 	
 	//"os/exec"
 	. "github.com/onsi/ginkgo"
 	//. "github.com/onsi/gomega"
-	"github.com/miclip/dotnet-extensions/dotnet"
+	//"github.com/miclip/dotnet-extensions/dotnet"
 )
 
 
 
 var _ = Describe("dotnetclient", func() {
 	BeforeEach(func(){
-		dotnet.ExecCommand = fakes.FakeExecCommand
+		//dotnet.ExecCommand = fakes.FakeExecCommand
 	})
 
 	It("should execute dotnet build command", func() {
