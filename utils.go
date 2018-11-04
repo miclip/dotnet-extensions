@@ -8,6 +8,7 @@ import (
 	"os"
 )
 
+// CreateFileInDirectory creates a file in a directory based on an io.Reader
 func CreateFileInDirectory(directory string, filename string, reader io.Reader) error {
 
 	fo, err := os.Create(path.Join(directory,filename))
@@ -39,10 +40,8 @@ func CreateFileInDirectory(directory string, filename string, reader io.Reader) 
 	return nil
 }
 
-
-
+// MakeZip creates a zip archive file 
 func MakeZip(zipName string, files []string) error {
-
 	err := archiver.Zip.Make(zipName, files)
 	if err != nil {
 		return err
