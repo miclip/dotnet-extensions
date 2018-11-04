@@ -1,12 +1,11 @@
 package utils
 
 import (
+	"github.com/mholt/archiver"
 	"path"
 	"log"
-	"archive/zip"
 	"io"
 	"os"
-	"strings"
 )
 
 func CreateFileInDirectory(directory string, filename string, reader io.Reader) error {
@@ -40,44 +39,14 @@ func CreateFileInDirectory(directory string, filename string, reader io.Reader) 
 	return nil
 }
 
-func ZipFolder(zipName string, files []string, basePath string) error {
-	newZipFile, err := os.Create(zipName)
+
+
+func MakeZip(zipName string, files []string) error {
+
+	err := archiver.Zip.Make(zipName, files)
 	if err != nil {
 		return err
 	}
-	defer newZipFile.Close()
 
-	zipWriter := zip.NewWriter(newZipFile)
-	defer zipWriter.Close()
-
-	for _, file := range files {
-
-		zipfile, err := os.Open(file)
-		if err != nil {
-			return err
-		}
-		defer zipfile.Close()
-
-		info, err := zipfile.Stat()
-		if err != nil {
-			return err
-		}
-
-		header, err := zip.FileInfoHeader(info)
-		if err != nil {
-			return err
-		}
-		// to preserve the folder structure
-		header.Name = strings.Replace(file, basePath, "", -1)
-		header.Method = zip.Deflate
-
-		writer, err := zipWriter.CreateHeader(header)
-		if err != nil {
-			return err
-		}
-		if _, err = io.Copy(writer, zipfile); err != nil {
-			return err
-		}
-	}
 	return nil
 }

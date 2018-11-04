@@ -1,10 +1,12 @@
 package dotnet
 
 import (
+	"strings"
 	"fmt"
 	"os"
 	"path"
 	"path/filepath"
+
 	"github.com/miclip/dotnet-extensions"
 )
 
@@ -39,17 +41,31 @@ func (client *dotnetclient) SimplePack(packageID string, version string, sourceD
 	packageName := fmt.Sprintf("%s.%s.nupkg", packageID, version)
 	packagePath := path.Join(outputDir, packageName)
 	files := []string{}
+	isSubDir := false
+	subDirRootPath := ""
 	err := filepath.Walk(sourceDir,
 		func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}
-			if info.Mode().IsRegular() {
+			// list all files in root of sourceDir and only first level subdirectories, not files contained within
+			// the zip library duplicates the subdirectories
+			if !isSubDir  {
 				files = append(files, path)
+			}
+
+			if !isSubDir && info.IsDir() && path != sourceDir {
+				isSubDir = true
+				subDirRootPath = path
+			}
+
+			if isSubDir && !strings.Contains(path, subDirRootPath){
+				isSubDir = false
+				subDirRootPath = ""
 			}			
 			return nil
-		})	
-	err = utils.ZipFolder(packagePath, files, sourceDir)
+		})
+	err = utils.MakeZip(packagePath, files)
 	if err != nil {
 		return packagePath, err
 	}
