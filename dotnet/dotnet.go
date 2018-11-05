@@ -1,6 +1,7 @@
 package dotnet
 
 import (
+	"os/exec"
 	"strings"
 	"fmt"
 	"os"
@@ -13,29 +14,28 @@ import (
 // DotnetClient ...
 type DotnetClient interface {
 	SimplePack(packageID string, version string, sourceDir string, outputDir string) (string, error)
+	Publish(projectPath string, outputdir string) ([]byte, error)
 }
 
 type dotnetclient struct {
-	path      string
 	framework string
 	runtime   string
 }
 
 // NewDotnetClient ...
 func NewDotnetClient(
-	path string,
 	framework string,
 	runtime string,
 ) DotnetClient {
-	projectPath := path
 	targetFramework := framework
 	targetRuntime := runtime
 	return &dotnetclient{
-		path:      projectPath,
 		framework: targetFramework,
 		runtime:   targetRuntime,
 	}
 }
+
+var ExecCommand = exec.Command
 
 func (client *dotnetclient) SimplePack(packageID string, version string, sourceDir string, outputDir string) (string, error) {
 	packageName := fmt.Sprintf("%s.%s.nupkg", packageID, version)
@@ -71,4 +71,10 @@ func (client *dotnetclient) SimplePack(packageID string, version string, sourceD
 	}
 
 	return packagePath, nil
+}
+
+func (client *dotnetclient) Publish(projectPath string, outputdir string) ([]byte, error) {
+	cmd := ExecCommand("dotnet", "publish", projectPath, "--no-build", "--no-restore", "-f", client.framework, "-r", client.runtime, "-o", outputdir)
+	out, err := cmd.CombinedOutput()
+	return out, err
 }

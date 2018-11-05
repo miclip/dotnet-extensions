@@ -8,6 +8,20 @@ import (
 )
 
 type FakeDotnetClient struct {
+	PublishStub        func(string, string) ([]byte, error)
+	publishMutex       sync.RWMutex
+	publishArgsForCall []struct {
+		arg1 string
+		arg2 string
+	}
+	publishReturns struct {
+		result1 []byte
+		result2 error
+	}
+	publishReturnsOnCall map[int]struct {
+		result1 []byte
+		result2 error
+	}
 	SimplePackStub        func(string, string, string, string) (string, error)
 	simplePackMutex       sync.RWMutex
 	simplePackArgsForCall []struct {
@@ -26,6 +40,70 @@ type FakeDotnetClient struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *FakeDotnetClient) Publish(arg1 string, arg2 string) ([]byte, error) {
+	fake.publishMutex.Lock()
+	ret, specificReturn := fake.publishReturnsOnCall[len(fake.publishArgsForCall)]
+	fake.publishArgsForCall = append(fake.publishArgsForCall, struct {
+		arg1 string
+		arg2 string
+	}{arg1, arg2})
+	fake.recordInvocation("Publish", []interface{}{arg1, arg2})
+	fake.publishMutex.Unlock()
+	if fake.PublishStub != nil {
+		return fake.PublishStub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.publishReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeDotnetClient) PublishCallCount() int {
+	fake.publishMutex.RLock()
+	defer fake.publishMutex.RUnlock()
+	return len(fake.publishArgsForCall)
+}
+
+func (fake *FakeDotnetClient) PublishCalls(stub func(string, string) ([]byte, error)) {
+	fake.publishMutex.Lock()
+	defer fake.publishMutex.Unlock()
+	fake.PublishStub = stub
+}
+
+func (fake *FakeDotnetClient) PublishArgsForCall(i int) (string, string) {
+	fake.publishMutex.RLock()
+	defer fake.publishMutex.RUnlock()
+	argsForCall := fake.publishArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *FakeDotnetClient) PublishReturns(result1 []byte, result2 error) {
+	fake.publishMutex.Lock()
+	defer fake.publishMutex.Unlock()
+	fake.PublishStub = nil
+	fake.publishReturns = struct {
+		result1 []byte
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeDotnetClient) PublishReturnsOnCall(i int, result1 []byte, result2 error) {
+	fake.publishMutex.Lock()
+	defer fake.publishMutex.Unlock()
+	fake.PublishStub = nil
+	if fake.publishReturnsOnCall == nil {
+		fake.publishReturnsOnCall = make(map[int]struct {
+			result1 []byte
+			result2 error
+		})
+	}
+	fake.publishReturnsOnCall[i] = struct {
+		result1 []byte
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *FakeDotnetClient) SimplePack(arg1 string, arg2 string, arg3 string, arg4 string) (string, error) {
@@ -97,6 +175,8 @@ func (fake *FakeDotnetClient) SimplePackReturnsOnCall(i int, result1 string, res
 func (fake *FakeDotnetClient) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.publishMutex.RLock()
+	defer fake.publishMutex.RUnlock()
 	fake.simplePackMutex.RLock()
 	defer fake.simplePackMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
