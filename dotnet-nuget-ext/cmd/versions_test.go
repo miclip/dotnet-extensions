@@ -43,6 +43,7 @@ var _ = Describe("Versions cmd", func() {
 			cmd.Latest = true
 			cmd.FeedUrl = "https://somefeed.com/feed.json"
 			cmd.HandleVersions(ui, nugetClientv3, nil)
+			Ω(nugetClientv3.GetPackageVersionsCallCount()).Should(Equal(1))
 			Ω(bOut).To(gbytes.Say("1.0.23"))
 		})
 		It("returns an error", func() {
@@ -60,25 +61,33 @@ var _ = Describe("Versions cmd", func() {
 			nugetClientv3.GetPackageVersionsReturns([]nuget.Version{}, nil)
 			cmd.HandleVersions(ui, nugetClientv3, nil)
 			Ω(bOut).To(gbytes.Say(""))
+			Ω(nugetClientv3.GetPackageVersionsCallCount()).Should(Equal(1))
 			Ω(bErr).To(gbytes.Say("no version details found."))
 		})
 	})
-	// Context("versions lists all", func() {
-	// 	It("returns all the versions including prerelease", func() {
-	// 		packageVersion := nuget.PackageVersion{
-	// 			ID:          "A.Package.Name",
-	// 			Version:     "1.0.23",
-	// 			Description: "A descriptive description",
-	// 		}
-	// 		nugetClientv3.GetPackageVersionReturns(&packageVersion, nil)
-	// 		cmd.PackageName = "A.Package.Name"
-	// 		cmd.Prerelease = true
-	// 		cmd.Latest = false
-	// 		cmd.FeedUrl = "https://somefeed.com/feed.json"
-	// 		cmd.HandleVersions(ui, nugetClientv3, nil)
-	// 		Ω(bOut).To(gbytes.Say("1.0.23\n1.0.22\n"))
-	// 	})
-
-	// })
+	Context("versions lists all", func() {
+		It("returns all the versions including prerelease", func() {
+			versions := []nuget.Version{
+				nuget.Version{
+					ID:        "http://some.com/somefeed/api/v3/registration1/dotnetresource.testlibraryone/1.0.1.json",
+					Version:   "1.0.23",
+					Downloads: 10,
+				},
+				nuget.Version{
+					ID:        "http://some.com/somefeed/api/v3/registration1/dotnetresource.testlibraryone/1.0.1.json",
+					Version:   "1.0.22",
+					Downloads: 10,
+				},
+			}
+			nugetClientv3.GetPackageVersionsReturns(versions, nil)
+			cmd.PackageName = "A.Package.Name"
+			cmd.Prerelease = true
+			cmd.Latest = false
+			cmd.FeedUrl = "https://somefeed.com/feed.json"
+			cmd.HandleVersions(ui, nugetClientv3, nil)			
+			Ω(nugetClientv3.GetPackageVersionsCallCount()).Should(Equal(1))
+			Ω(bOut).To(gbytes.Say("1.0.23\n1.0.22\n"))
+		})
+	})
 
 })
