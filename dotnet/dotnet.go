@@ -14,7 +14,7 @@ import (
 // DotnetClient ...
 type DotnetClient interface {
 	SimplePack(packageID string, version string, sourceDir string, outputDir string) (string, error)
-	Publish(projectPath string, outputdir string) ([]byte, error)
+	Publish(projectPath string, outputdir string, norestore bool, nobuild bool) ([]byte, error)
 }
 
 type dotnetclient struct {
@@ -73,8 +73,21 @@ func (client *dotnetclient) SimplePack(packageID string, version string, sourceD
 	return packagePath, nil
 }
 
-func (client *dotnetclient) Publish(projectPath string, outputdir string) ([]byte, error) {
-	cmd := ExecCommand("dotnet", "publish", projectPath, "--no-build", "--no-restore", "-f", client.framework, "-r", client.runtime, "-o", outputdir)
+func (client *dotnetclient) Publish(projectPath string, outputdir string, norestore bool, nobuild bool) ([]byte, error) {
+	args := []string{"publish", projectPath, "-o", outputdir}
+	if nobuild {
+		args = append(args, ([]string{"--no-build"})...)
+	}
+	if norestore {
+		args = append(args, ([]string{"--no-restore"})...)
+	}	
+	if client.framework != "" {
+		args = append(args, ([]string{"-f", client.framework})...)
+	}
+	if client.runtime != "" {
+		args = append(args, ([]string{"-r", client.runtime})...)
+	}
+	cmd := ExecCommand("dotnet", args...)	
 	out, err := cmd.CombinedOutput()
 	return out, err
 }

@@ -65,6 +65,17 @@ func HandleSimplePack(ui ui.UI, nugetClientv3 nuget.NugetClientv3, dotnetClient 
 	}
 	nuspec, _ := nugetClientv3.CreateNuspecFromProject(ProjectFile, "")
 
+	if !NoPublish {
+		output, err := dotnetClient.Publish(ProjectFile, OutputDir, NoRestore, NoBuild)
+		if err != nil {
+			ui.ErrorLinef("dotnet publish failed %v", err)
+			ui.ErrorLinef("Publishing failed:\n%v", string(output))
+			return
+		}
+		ui.Printf("Publishing...:\n%v\n", string(output))
+		BasePath = OutputDir
+	}
+
 	if AutoIncrement {
 		versions, err := nugetClientv3.GetPackageVersions(context.Background(), nuspec.ID, true)
 		if err != nil {
