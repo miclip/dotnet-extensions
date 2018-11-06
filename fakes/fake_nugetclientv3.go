@@ -108,6 +108,19 @@ type FakeNugetClientv3 struct {
 		result1 *nuget.ServiceIndex
 		result2 error
 	}
+	PublishPackageStub        func(context.Context, string, string) error
+	publishPackageMutex       sync.RWMutex
+	publishPackageArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+		arg3 string
+	}
+	publishPackageReturns struct {
+		result1 error
+	}
+	publishPackageReturnsOnCall map[int]struct {
+		result1 error
+	}
 	SearchQueryServiceStub        func(context.Context, string, string, bool) (*nuget.SearchResults, error)
 	searchQueryServiceMutex       sync.RWMutex
 	searchQueryServiceArgsForCall []struct {
@@ -575,6 +588,68 @@ func (fake *FakeNugetClientv3) GetServiceIndexReturnsOnCall(i int, result1 *nuge
 	}{result1, result2}
 }
 
+func (fake *FakeNugetClientv3) PublishPackage(arg1 context.Context, arg2 string, arg3 string) error {
+	fake.publishPackageMutex.Lock()
+	ret, specificReturn := fake.publishPackageReturnsOnCall[len(fake.publishPackageArgsForCall)]
+	fake.publishPackageArgsForCall = append(fake.publishPackageArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+		arg3 string
+	}{arg1, arg2, arg3})
+	fake.recordInvocation("PublishPackage", []interface{}{arg1, arg2, arg3})
+	fake.publishPackageMutex.Unlock()
+	if fake.PublishPackageStub != nil {
+		return fake.PublishPackageStub(arg1, arg2, arg3)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	fakeReturns := fake.publishPackageReturns
+	return fakeReturns.result1
+}
+
+func (fake *FakeNugetClientv3) PublishPackageCallCount() int {
+	fake.publishPackageMutex.RLock()
+	defer fake.publishPackageMutex.RUnlock()
+	return len(fake.publishPackageArgsForCall)
+}
+
+func (fake *FakeNugetClientv3) PublishPackageCalls(stub func(context.Context, string, string) error) {
+	fake.publishPackageMutex.Lock()
+	defer fake.publishPackageMutex.Unlock()
+	fake.PublishPackageStub = stub
+}
+
+func (fake *FakeNugetClientv3) PublishPackageArgsForCall(i int) (context.Context, string, string) {
+	fake.publishPackageMutex.RLock()
+	defer fake.publishPackageMutex.RUnlock()
+	argsForCall := fake.publishPackageArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *FakeNugetClientv3) PublishPackageReturns(result1 error) {
+	fake.publishPackageMutex.Lock()
+	defer fake.publishPackageMutex.Unlock()
+	fake.PublishPackageStub = nil
+	fake.publishPackageReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeNugetClientv3) PublishPackageReturnsOnCall(i int, result1 error) {
+	fake.publishPackageMutex.Lock()
+	defer fake.publishPackageMutex.Unlock()
+	fake.PublishPackageStub = nil
+	if fake.publishPackageReturnsOnCall == nil {
+		fake.publishPackageReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.publishPackageReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *FakeNugetClientv3) SearchQueryService(arg1 context.Context, arg2 string, arg3 string, arg4 bool) (*nuget.SearchResults, error) {
 	fake.searchQueryServiceMutex.Lock()
 	ret, specificReturn := fake.searchQueryServiceReturnsOnCall[len(fake.searchQueryServiceArgsForCall)]
@@ -658,6 +733,8 @@ func (fake *FakeNugetClientv3) Invocations() map[string][][]interface{} {
 	defer fake.getPackageVersionsMutex.RUnlock()
 	fake.getServiceIndexMutex.RLock()
 	defer fake.getServiceIndexMutex.RUnlock()
+	fake.publishPackageMutex.RLock()
+	defer fake.publishPackageMutex.RUnlock()
 	fake.searchQueryServiceMutex.RLock()
 	defer fake.searchQueryServiceMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

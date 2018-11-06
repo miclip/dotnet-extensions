@@ -1,15 +1,17 @@
 package nuget
 
 import (
-	"strconv"
-	"strings"
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 
 	"gopkg.in/xmlpath.v1"
@@ -34,6 +36,7 @@ type NugetClientv3 interface {
 	GetNugetApiEndPoint(ctx context.Context, resourceType string) (string, error)
 	CreateNuspecFromProject(project string, version string) (Nuspec, error)
 	AutoIncrementVersion(versionSpec string, version string) (string, error)
+	PublishPackage(ctx context.Context, apikey string, packagePath string) error
 }
 
 type nugetclientv3 struct {
@@ -102,6 +105,51 @@ func (client *nugetclientv3) SearchQueryService(ctx context.Context, searchQuery
 		return nil, err
 	}
 	return &r, nil
+}
+
+func (client *nugetclientv3) PublishPackage(ctx context.Context, apikey string, packagePath string) error {
+	uploadURL, err := client.GetNugetApiEndPoint(ctx, "PackagePublish/2.0.0")
+	if err != nil {
+		log.Fatal("error getting download url", err)
+	}
+	file, err := os.Open(packagePath)
+	if err != nil {
+		return fmt.Errorf("error reading package %s with %v", packagePath, err)
+	}
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+	part, err := writer.CreateFormFile("package", file.Name())
+	if err != nil {
+		return err
+	}
+
+	_, err = io.Copy(part, file)
+
+	err = writer.Close()
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest(http.MethodPut, uploadURL, body)
+	if err != nil {
+		return err
+	}
+	req = req.WithContext(ctx)
+	req.Header.Add("X-NuGet-ApiKey", apikey)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	var netClient = &http.Client{
+		Timeout: 300 * time.Second,
+	}
+	res, err := netClient.Do(req)
+	if err != nil {
+		return err
+	}
+	if res.StatusCode != 200 && res.StatusCode != 201 && res.StatusCode != 202 {
+		return fmt.Errorf("error uploading package %d", res.StatusCode)
+	}
+	defer res.Body.Close()
+
+	return nil
 }
 
 func (client *nugetclientv3) DownloadPackage(ctx context.Context, packageID string, version string, targetFolder string) error {

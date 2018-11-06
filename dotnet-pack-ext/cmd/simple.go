@@ -39,6 +39,8 @@ var (
 	Framework     string
 	BasePath      string
 	NoPublish     bool
+	APIKey        string
+	PushPackage bool
 )
 
 // simpleCmd represents the recipe command
@@ -58,6 +60,7 @@ var simpleCmd = &cobra.Command{
 
 // HandleSimplePack ...
 func HandleSimplePack(ui ui.UI, nugetClientv3 nuget.NugetClientv3, dotnetClient dotnet.DotnetClient, args []string) {
+	ctx := context.Background()
 	ProjectFile = args[0]
 	if _, err := os.Stat(ProjectFile); os.IsNotExist(err) {
 		ui.ErrorLinef("project %s not found \n %v", ProjectFile, err)
@@ -77,7 +80,7 @@ func HandleSimplePack(ui ui.UI, nugetClientv3 nuget.NugetClientv3, dotnetClient 
 	}
 
 	if AutoIncrement {
-		versions, err := nugetClientv3.GetPackageVersions(context.Background(), nuspec.ID, true)
+		versions, err := nugetClientv3.GetPackageVersions(ctx, nuspec.ID, true)
 		if err != nil {
 			ui.ErrorLinef("error retrieving latest version from feed. %v", err)
 			return
@@ -106,6 +109,14 @@ func HandleSimplePack(ui ui.UI, nugetClientv3 nuget.NugetClientv3, dotnetClient 
 		ui.ErrorLinef("error creating package", err)
 	}
 	ui.PrintLinef("Package Path %s", packagePath)
+
+	if PushPackage{
+		ui.PrintLinef("Pushing package to nuget feed: %s", packagePath)
+		err = nugetClientv3.PublishPackage(ctx, APIKey, packagePath)
+		if err != nil {
+			ui.ErrorLinef("error uploading package", err)
+		}
+	}
 }
 
 func init() {
@@ -120,4 +131,6 @@ func init() {
 	simpleCmd.Flags().BoolVarP(&NoRestore, "no-restore", "", false, "Do not restore the project before building.")
 	simpleCmd.Flags().StringVarP(&Runtime, "runtime", "r", "", "The target runtime to restore packages for.")
 	simpleCmd.Flags().StringVarP(&Framework, "framework", "f", "", "The target framework")
+	simpleCmd.Flags().StringVarP(&APIKey, "api-key", "k", "", "The API key for the server.")
+	simpleCmd.Flags().BoolVarP(&PushPackage, "push-package", "p", false, "Push the package to nuget feed, --source and --api-key are required.")
 }

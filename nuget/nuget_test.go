@@ -1,6 +1,7 @@
 package nuget_test
 
 import (
+	"net/http"
 	"context"
 	"encoding/xml"
 
@@ -342,3 +343,54 @@ var _ = Describe("CreateNuspec", func() {
 		})
 	})
 })
+
+
+
+var _ = Describe("UploadPackage", func() {
+	var server *ghttp.Server
+	var returnedServiceIndex nuget.ServiceIndex
+	var statusCode int
+	var client nuget.NugetClientv3
+
+	BeforeEach(func() {
+		server = ghttp.NewServer()
+		client = nuget.NewNugetClientv3(server.URL() + "/somefeed/api/v3/index.json")
+		server.AppendHandlers(
+			ghttp.CombineHandlers(
+				ghttp.VerifyRequest("GET", "/somefeed/api/v3/index.json"),
+				ghttp.RespondWithJSONEncodedPtr(&statusCode, &returnedServiceIndex),
+			),
+			ghttp.CombineHandlers(
+				ghttp.VerifyRequest("PUT", "/somefeed/api/v2/package"),
+				ghttp.VerifyHeader(http.Header{"X-NuGet-ApiKey": []string{"an_api_key"}}),
+			),
+		)
+	})
+
+	AfterEach(func() {
+		server.Close()
+	})
+
+	Context("when the package is uploaded", func() {
+		BeforeEach(func() {
+			returnedServiceIndex = nuget.ServiceIndex{
+				Version: "3.0.0",
+				Resources: []nuget.Resource{
+					nuget.Resource{
+						ID:      server.URL() + "/somefeed/api/v2/package",
+						Type:    "PackagePublish/2.0.0",
+						Comment: "Legacy gallery publish endpoint using the V2 protocol.",
+					},
+				},
+			}			
+			statusCode = 200
+		})
+
+		It("returns nil error", func() {
+			err := client.PublishPackage(context.Background(), "an_api_key", "../test_files/DotnetResource.TestApplication.1.0.28.nupkg")
+			Ω(err).Should(Succeed())
+			Ω(server.ReceivedRequests()).Should(HaveLen(2))		
+		})
+	})
+})
+
