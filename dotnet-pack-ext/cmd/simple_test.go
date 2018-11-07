@@ -1,6 +1,7 @@
 package cmd_test
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/miclip/dotnet-extensions/dotnet-pack-ext/cmd"
@@ -72,6 +73,42 @@ var _ = Describe("Simple cmd", func() {
 			Ω(nugetClientv3.AutoIncrementVersionCallCount()).Should(Equal(0))
 			Ω(dotnetClient.SimplePackCallCount()).Should(Equal(1))			
 			Ω(bOut).To(gbytes.Say("Package A.Package Version: 1.0.0\nPackage Path ./A.Package.1.0.0.nupkg"))			
+		})		
+	})
+
+	Context("simple pack no publish without autoincrement", func() {
+		It("increments the version from nuget and creates a package", func() {
+			nugetClientv3.CreateNuspecFromProjectReturns(nuget.Nuspec{ID: "A.Package", Version:"1.0.0"}, nil)
+			dotnetClient.SimplePackReturns("./A.Package.1.0.0.nupkg", nil)
+			args := []string{"../../test_files/TestApplication.csproj"}
+			cmd.AutoIncrement = false
+			cmd.Version = "1.0.*"
+			cmd.BasePath = "/tmp/"
+			cmd.NoPublish = false
+			cmd.FeedUrl = "https://somefeed.com/feed.json"
+			cmd.HandleSimplePack(ui, nugetClientv3, dotnetClient, args)
+			Ω(bErr).NotTo(gbytes.Say("."))
+			Ω(nugetClientv3.GetPackageVersionsCallCount()).Should(Equal(0))
+			Ω(nugetClientv3.AutoIncrementVersionCallCount()).Should(Equal(0))
+			Ω(dotnetClient.SimplePackCallCount()).Should(Equal(1))			
+			Ω(bOut).To(gbytes.Say("Publishing...:\n\nPackage A.Package Version: 1.0.0\nPackage Path ./A.Package.1.0.0.nupkg"))			
+		})	
+		It("dotnet client publish cmd returns an error", func() {
+			nugetClientv3.CreateNuspecFromProjectReturns(nuget.Nuspec{ID: "A.Package", Version:"1.0.0"}, nil)
+			dotnetClient.SimplePackReturns("./A.Package.1.0.0.nupkg", nil)
+			dotnetClient.PublishReturns(nil, fmt.Errorf("error publishing dotnet project"))
+			args := []string{"../../test_files/TestApplication.csproj"}
+			cmd.AutoIncrement = false
+			cmd.Version = "1.0.*"
+			cmd.BasePath = "/tmp/"
+			cmd.NoPublish = false
+			cmd.FeedUrl = "https://somefeed.com/feed.json"
+			cmd.HandleSimplePack(ui, nugetClientv3, dotnetClient, args)
+			Ω(bErr).To(gbytes.Say("dotnet publish failed error publishing dotnet project\nPublishing failed:\n"))
+			Ω(nugetClientv3.GetPackageVersionsCallCount()).Should(Equal(0))
+			Ω(nugetClientv3.AutoIncrementVersionCallCount()).Should(Equal(0))
+			Ω(dotnetClient.SimplePackCallCount()).Should(Equal(0))			
+			Ω(bOut).To(gbytes.Say(""))			
 		})		
 	})
 	
