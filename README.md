@@ -2,7 +2,7 @@
 
 # Dotnet CLI Extensions
 
-This project is a plugin for the dotnet cli to fill gaps when working for CI/CD platforms that are stateless like [Concourse](https://concourse-ci.org/).
+This project is a plugin for the dotnet cli to package the pubished artifacts of applications into nuget packages. It aims make it easier when working with CI/CD platforms that don't have internal storage for artifacts like [Concourse](https://concourse-ci.org/).
 
 It's main target is being able to package an published application as a nuget package and push to a nuget feed. This enables nuget as an immutable application artifact repository whilst leveraging the existing nuget tooling.
 
