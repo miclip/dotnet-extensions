@@ -84,6 +84,6 @@ func init() {
 	versionsCmd.Flags().StringVarP(&PackageName, "name", "n", "", "Package name")
 	versionsCmd.Flags().BoolVarP(&Prerelease, "prerelease", "p", false, "Includes prerelease packages in the list.")
 	versionsCmd.Flags().BoolVarP(&Latest, "latest", "l", false, "Returns only latest version")
-	versionsCmd.Flags().BoolVarP(&AutoIncrement, "autoincrement", "a", false, "Automatically increments the version based on latest from nuget feed, requires --source")
+	versionsCmd.Flags().BoolVarP(&AutoIncrement, "increment", "i", false, "Automatically increments the version based on latest from nuget feed, requires --source")
 	versionsCmd.Flags().StringVarP(&VersionSpec, "version-spec", "m", "", "Version of the package")
 }

@@ -122,9 +122,9 @@ func HandleSimplePack(ui ui.UI, nugetClientv3 nuget.NugetClientv3, dotnetClient 
 func init() {
 	rootCmd.AddCommand(simpleCmd)
 	simpleCmd.Flags().StringVarP(&FeedUrl, "source", "s", "", "Specifies the nuget server URL.")
-	simpleCmd.Flags().StringVarP(&Version, "version", "v", "", "Version of the package")
-	simpleCmd.Flags().StringVarP(&BasePath, "basepath", "b", "", "Location of published artifacts, required when --no-pubish is true")
-	simpleCmd.Flags().BoolVarP(&AutoIncrement, "autoincrement", "a", false, "Automatically increments the version based on latest from nuget feed, requires --source")
+	simpleCmd.Flags().StringVarP(&Version, "version", "v", "", "Version or version-spec of the package")
+	simpleCmd.Flags().StringVarP(&BasePath, "basepath", "b", "", "Location of published artifacts, required when --no-publish is true")
+	simpleCmd.Flags().BoolVarP(&AutoIncrement, "increment", "i", false, "Automatically increments the version based on latest from nuget feed, requires --source")
 	simpleCmd.Flags().StringVarP(&OutputDir, "output", "o", "", "The output directory to place built packages in.")
 	simpleCmd.Flags().BoolVarP(&NoBuild, "no-build", "", false, "Do not build the project before packing. Implies --no-restore.")
 	simpleCmd.Flags().BoolVarP(&NoPublish, "no-publish", "", false, "Do not publish the project before packing. Implies --no-build & --no-restore. Requires a --basepath to the published output")
