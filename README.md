@@ -55,7 +55,8 @@ The following command demonstrates packaging a library and incremeting the versi
 The `version-spec` controls which value is incremented by 1. For example a spec of `1.0.*` and a latest nuget version of `2.0.1` will result in the version `2.0.2`. Version suffixes like `-alpha` are supported provided the spec matches.
 
 ~~~ sh
-dotnet pack ./DotnetResource.TestLibraryOne.csproj -p:PackageVersion=$(dotnet nuget-ext versions --name DotnetResource.TestLibraryOne --latest --source https://www.myget.org/F/dotnet-resource-test/api/v3/index.json --autoincrement --version-spec "1.0.*")
+dotnet pack ./DotnetResource.TestLibraryOne.csproj -p:PackageVersion=$(dotnet nuget-ext versions 
+--name DotnetResource.TestLibraryOne --latest --source https://www.myget.org/F/dotnet-resource-test/api/v3/index.json --autoincrement --version-spec "1.0.*")
 ~~~
 
 The second command:
