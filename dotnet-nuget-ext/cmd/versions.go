@@ -23,10 +23,12 @@ import (
 )
 
 var (
-	FeedUrl     string
-	PackageName string
-	Prerelease  bool
-	Latest      bool
+	FeedUrl       string
+	PackageName   string
+	Prerelease    bool
+	Latest        bool
+	AutoIncrement bool
+	VersionSpec   string
 )
 
 // recipeCmd represents the recipe command
@@ -54,12 +56,24 @@ func HandleVersions(ui ui.UI, nugetClientv3 nuget.NugetClientv3, args []string) 
 		ui.ErrorLinef("no version details found.")
 		return
 	}
-	if Latest {
+	if Latest && !AutoIncrement {
 		ui.PrintLinef(versions[len(versions)-1].Version)
 		return
 	}
-	for _, v := range versions {
-		ui.PrintLinef(v.Version)
+
+	if !Latest {
+		for _, v := range versions {
+			ui.PrintLinef(v.Version)
+		}
+	}
+
+	if AutoIncrement && Latest {
+		newVersion, err := nugetClientv3.AutoIncrementVersion(VersionSpec, versions[len(versions)-1].Version)
+		if err != nil {
+			ui.ErrorLinef("error incrementing version. %v", err)
+			return
+		}
+		ui.PrintLinef(newVersion)
 	}
 
 }
@@ -70,4 +84,6 @@ func init() {
 	versionsCmd.Flags().StringVarP(&PackageName, "name", "n", "", "Package name")
 	versionsCmd.Flags().BoolVarP(&Prerelease, "prerelease", "p", false, "Includes prerelease packages in the list.")
 	versionsCmd.Flags().BoolVarP(&Latest, "latest", "l", false, "Returns only latest version")
+	versionsCmd.Flags().BoolVarP(&AutoIncrement, "autoincrement", "a", false, "Automatically increments the version based on latest from nuget feed, requires --source")
+	versionsCmd.Flags().StringVarP(&VersionSpec, "version-spec", "m", "", "Version of the package")
 }
