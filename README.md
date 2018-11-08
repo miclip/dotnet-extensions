@@ -56,7 +56,9 @@ The `version-spec` controls which value is incremented by 1. For example a spec 
 
 ~~~ sh
 dotnet pack ./DotnetResource.TestLibraryOne.csproj -p:PackageVersion=$(dotnet nuget-ext versions 
---name DotnetResource.TestLibraryOne --latest --source https://www.myget.org/F/dotnet-resource-test/api/v3/index.json --autoincrement --version-spec "1.0.*")
+--name DotnetResource.TestLibraryOne --latest 
+--source https://www.myget.org/F/dotnet-resource-test/api/v3/index.json 
+--autoincrement --version-spec "1.0.*")
 ~~~
 
 The second command:
