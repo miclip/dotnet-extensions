@@ -1,6 +1,9 @@
 package nuget
 
 import (
+	"encoding/xml"
+	"io/ioutil"
+	"path/filepath"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -37,6 +40,7 @@ type NugetClientv3 interface {
 	CreateNuspecFromProject(project string, version string) (Nuspec, error)
 	AutoIncrementVersion(versionSpec string, version string) (string, error)
 	PublishPackage(ctx context.Context, apikey string, packagePath string) error
+	ReadNuspecFromDirectory( directory string) (Nuspec, error)
 }
 
 type nugetclientv3 struct {
@@ -252,6 +256,28 @@ func (client *nugetclientv3) CreateNuspecFromProject(project string, version str
 		}
 	}
 	return Nuspec{}, fmt.Errorf("the project file could not be parsed %s", project)
+}
+
+func (client *nugetclientv3) ReadNuspecFromDirectory(directory string) (Nuspec, error) {
+	nuspec := Nuspec{}
+	files, err := filepath.Glob(filepath.Join(directory, "*.nuspec"))
+	if err != nil {
+		return nuspec, err
+	}
+	if len(files) > 1 {
+		return nuspec, fmt.Errorf("multiple nuspec files found %s", directory)
+	}
+	file, err := ioutil.ReadFile(files[0])
+	if err != nil {
+		return nuspec, err
+	}
+	
+	err = xml.Unmarshal(file, &nuspec)
+	if err != nil {
+		return nuspec, fmt.Errorf("the nuspec file could not be parsed %s", directory)
+	}
+	
+	return nuspec, nil
 }
 
 func (client *nugetclientv3) GetNugetApiEndPoint(ctx context.Context, resourceType string) (string, error) {

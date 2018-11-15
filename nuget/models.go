@@ -46,12 +46,23 @@ type Version struct {
 }
 
 type Nuspec struct {
-	XMLName                  xml.Name `xml:"package"`
-	Xmlns                    string   `xml:"xmlns,attr"`
-	ID                       string   `xml:"metadata>id"`
-	Version                  string   `xml:"metadata>version"`
-	Authors                  string   `xml:"metadata>authors"`
-	Owners                   string   `xml:"metadata>owners"`
-	RequireLicenseAcceptance bool     `xml:"metadata>requireLicenseAcceptance"`
-	Description              string   `xml:"metadata>description"`
+	XMLName                  xml.Name     `xml:"package"`
+	Xmlns                    string       `xml:"xmlns,attr"`
+	ID                       string       `xml:"metadata>id"`
+	Version                  string       `xml:"metadata>version"`
+	Authors                  string       `xml:"metadata>authors"`
+	Owners                   string       `xml:"metadata>owners"`
+	RequireLicenseAcceptance bool         `xml:"metadata>requireLicenseAcceptance"`
+	Description              string       `xml:"metadata>description"`
+	PackageType              *PackageTypes `xml:"metadata>packageTypes"`
+}
+
+type PackageTypes struct {
+	XMLName     xml.Name    `xml:"packageTypes"`
+	PackageType PackageType `xml:"packageType"`
+}
+
+type PackageType struct {
+	XMLName xml.Name `xml:"packageType"`
+	Name    string   `xml:"name,attr"`
 }

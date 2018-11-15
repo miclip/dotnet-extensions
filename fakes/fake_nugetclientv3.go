@@ -121,6 +121,19 @@ type FakeNugetClientv3 struct {
 	publishPackageReturnsOnCall map[int]struct {
 		result1 error
 	}
+	ReadNuspecFromDirectoryStub        func(string) (nuget.Nuspec, error)
+	readNuspecFromDirectoryMutex       sync.RWMutex
+	readNuspecFromDirectoryArgsForCall []struct {
+		arg1 string
+	}
+	readNuspecFromDirectoryReturns struct {
+		result1 nuget.Nuspec
+		result2 error
+	}
+	readNuspecFromDirectoryReturnsOnCall map[int]struct {
+		result1 nuget.Nuspec
+		result2 error
+	}
 	SearchQueryServiceStub        func(context.Context, string, string, bool) (*nuget.SearchResults, error)
 	searchQueryServiceMutex       sync.RWMutex
 	searchQueryServiceArgsForCall []struct {
@@ -650,6 +663,69 @@ func (fake *FakeNugetClientv3) PublishPackageReturnsOnCall(i int, result1 error)
 	}{result1}
 }
 
+func (fake *FakeNugetClientv3) ReadNuspecFromDirectory(arg1 string) (nuget.Nuspec, error) {
+	fake.readNuspecFromDirectoryMutex.Lock()
+	ret, specificReturn := fake.readNuspecFromDirectoryReturnsOnCall[len(fake.readNuspecFromDirectoryArgsForCall)]
+	fake.readNuspecFromDirectoryArgsForCall = append(fake.readNuspecFromDirectoryArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	fake.recordInvocation("ReadNuspecFromDirectory", []interface{}{arg1})
+	fake.readNuspecFromDirectoryMutex.Unlock()
+	if fake.ReadNuspecFromDirectoryStub != nil {
+		return fake.ReadNuspecFromDirectoryStub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	fakeReturns := fake.readNuspecFromDirectoryReturns
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *FakeNugetClientv3) ReadNuspecFromDirectoryCallCount() int {
+	fake.readNuspecFromDirectoryMutex.RLock()
+	defer fake.readNuspecFromDirectoryMutex.RUnlock()
+	return len(fake.readNuspecFromDirectoryArgsForCall)
+}
+
+func (fake *FakeNugetClientv3) ReadNuspecFromDirectoryCalls(stub func(string) (nuget.Nuspec, error)) {
+	fake.readNuspecFromDirectoryMutex.Lock()
+	defer fake.readNuspecFromDirectoryMutex.Unlock()
+	fake.ReadNuspecFromDirectoryStub = stub
+}
+
+func (fake *FakeNugetClientv3) ReadNuspecFromDirectoryArgsForCall(i int) string {
+	fake.readNuspecFromDirectoryMutex.RLock()
+	defer fake.readNuspecFromDirectoryMutex.RUnlock()
+	argsForCall := fake.readNuspecFromDirectoryArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *FakeNugetClientv3) ReadNuspecFromDirectoryReturns(result1 nuget.Nuspec, result2 error) {
+	fake.readNuspecFromDirectoryMutex.Lock()
+	defer fake.readNuspecFromDirectoryMutex.Unlock()
+	fake.ReadNuspecFromDirectoryStub = nil
+	fake.readNuspecFromDirectoryReturns = struct {
+		result1 nuget.Nuspec
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeNugetClientv3) ReadNuspecFromDirectoryReturnsOnCall(i int, result1 nuget.Nuspec, result2 error) {
+	fake.readNuspecFromDirectoryMutex.Lock()
+	defer fake.readNuspecFromDirectoryMutex.Unlock()
+	fake.ReadNuspecFromDirectoryStub = nil
+	if fake.readNuspecFromDirectoryReturnsOnCall == nil {
+		fake.readNuspecFromDirectoryReturnsOnCall = make(map[int]struct {
+			result1 nuget.Nuspec
+			result2 error
+		})
+	}
+	fake.readNuspecFromDirectoryReturnsOnCall[i] = struct {
+		result1 nuget.Nuspec
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeNugetClientv3) SearchQueryService(arg1 context.Context, arg2 string, arg3 string, arg4 bool) (*nuget.SearchResults, error) {
 	fake.searchQueryServiceMutex.Lock()
 	ret, specificReturn := fake.searchQueryServiceReturnsOnCall[len(fake.searchQueryServiceArgsForCall)]
@@ -735,6 +811,8 @@ func (fake *FakeNugetClientv3) Invocations() map[string][][]interface{} {
 	defer fake.getServiceIndexMutex.RUnlock()
 	fake.publishPackageMutex.RLock()
 	defer fake.publishPackageMutex.RUnlock()
+	fake.readNuspecFromDirectoryMutex.RLock()
+	defer fake.readNuspecFromDirectoryMutex.RUnlock()
 	fake.searchQueryServiceMutex.RLock()
 	defer fake.searchQueryServiceMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

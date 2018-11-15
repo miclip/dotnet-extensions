@@ -40,7 +40,7 @@ var (
 	BasePath      string
 	NoPublish     bool
 	APIKey        string
-	PushPackage bool
+	PushPackage   bool
 )
 
 // simpleCmd represents the recipe command
@@ -60,13 +60,27 @@ var simpleCmd = &cobra.Command{
 
 // HandleSimplePack ...
 func HandleSimplePack(ui ui.UI, nugetClientv3 nuget.NugetClientv3, dotnetClient dotnet.DotnetClient, args []string) {
+	var nuspec nuget.Nuspec
+	var err error
 	ctx := context.Background()
-	ProjectFile = args[0]
-	if _, err := os.Stat(ProjectFile); os.IsNotExist(err) {
-		ui.ErrorLinef("project %s not found \n %v", ProjectFile, err)
-		return
+	if len(args) > 0 {
+		ProjectFile = args[0]
 	}
-	nuspec, _ := nugetClientv3.CreateNuspecFromProject(ProjectFile, "")
+
+	if ProjectFile != "" {
+		if _, err := os.Stat(ProjectFile); os.IsNotExist(err) {
+			ui.ErrorLinef("project %s not found \n %v", ProjectFile, err)
+			return
+		}
+		nuspec, _ = nugetClientv3.CreateNuspecFromProject(ProjectFile, "")
+
+	} else {
+		nuspec, err = nugetClientv3.ReadNuspecFromDirectory(BasePath)
+		if err != nil {
+			ui.ErrorLinef("error parsing nuspec in %s with %v", BasePath, err)
+			return
+		}
+	}
 
 	if !NoPublish {
 		output, err := dotnetClient.Publish(ProjectFile, OutputDir, NoRestore, NoBuild)
@@ -110,7 +124,7 @@ func HandleSimplePack(ui ui.UI, nugetClientv3 nuget.NugetClientv3, dotnetClient 
 	}
 	ui.PrintLinef("Package Path %s", packagePath)
 
-	if PushPackage{
+	if PushPackage {
 		ui.PrintLinef("Pushing package to nuget feed: %s", packagePath)
 		err = nugetClientv3.PublishPackage(ctx, APIKey, packagePath)
 		if err != nil {

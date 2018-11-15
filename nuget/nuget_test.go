@@ -394,3 +394,16 @@ var _ = Describe("UploadPackage", func() {
 	})
 })
 
+
+var _ = Describe("ReadNuspec", func() {
+	client:= nuget.NewNugetClientv3("https://nuget.org/somefeed/api/v3/index.json")
+	Context("wellformed nuspec file", func() {
+		It("returns a nuspec instance", func() {
+			nuspec, err := client.ReadNuspecFromDirectory("../test_files/")
+			Ω(err).Should(Succeed())
+			Ω(nuspec).ShouldNot(BeNil())		
+			Ω(nuspec.ID).Should(Equal("DotnetExtensions"))		
+		})
+	})
+})
+
